@@ -79,6 +79,7 @@ flutter:
     - assets/images/person_man_onTap.png
     - assets/images/person_man_unTap.png
     - assets/images/Scott.png
+    - assets/images/Amanda.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

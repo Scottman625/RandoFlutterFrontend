@@ -11,7 +11,7 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var profile_id = user.id;
+    var profile_name = user.name;
     return Card(
       child: Stack(children: [
         Container(
@@ -116,7 +116,7 @@ class ProfileCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   child: FloatingActionButton(
-                    heroTag: 'undo$profile_id',
+                    heroTag: 'undo$profile_name',
                     onPressed: controller.undo,
                     backgroundColor: Colors.yellow,
                     child: CircleStack(Colors.yellow, Icons.undo),
@@ -126,7 +126,7 @@ class ProfileCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   child: FloatingActionButton(
-                    heroTag: 'swipeLeft$profile_id',
+                    heroTag: 'swipeLeft$profile_name',
                     onPressed: controller.swipeLeft,
                     backgroundColor: Colors.red,
                     child: CircleStack(Colors.red, Icons.clear),
@@ -136,7 +136,7 @@ class ProfileCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   child: FloatingActionButton(
-                    heroTag: 'swipeTop$profile_id',
+                    heroTag: 'swipeTop$profile_name',
                     onPressed: controller.swipeTop,
                     backgroundColor: Color.fromARGB(255, 64, 249, 255),
                     child: CircleStack(
@@ -147,7 +147,7 @@ class ProfileCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   child: FloatingActionButton(
-                    heroTag: 'swipeRight$profile_id',
+                    heroTag: 'swipeRight$profile_name',
                     onPressed: controller.swipeRight,
                     backgroundColor: Colors.greenAccent,
                     child: CircleStack(Colors.greenAccent, Icons.favorite),
@@ -157,7 +157,7 @@ class ProfileCard extends StatelessWidget {
                   width: 45,
                   height: 45,
                   child: FloatingActionButton(
-                    heroTag: 'swipeBottom$profile_id',
+                    heroTag: 'swipeBottom$profile_name',
                     onPressed: controller.swipeBottom,
                     backgroundColor: Colors.purpleAccent,
                     child:
