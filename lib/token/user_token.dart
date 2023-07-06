@@ -12,7 +12,7 @@ Future<String> getToken() async {
   if (token == '') {
     debugPrint('token is empty');
   }
-
+  // print(token);
   return token;
 }
 

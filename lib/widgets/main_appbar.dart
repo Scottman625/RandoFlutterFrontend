@@ -35,7 +35,7 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final checkLoggedInState = ref.watch(authStateProvider);
-    print(checkLoggedInState);
+    // print(checkLoggedInState);
     return Container(
       color: color,
       width: MediaQuery.of(context).size.width,

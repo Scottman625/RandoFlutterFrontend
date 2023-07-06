@@ -6,7 +6,7 @@ import '../widgets/profile_card.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import '../dummy_Data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'chatroom_list.dart';
+import 'chat_list.dart';
 import '../providers/page_provider.dart';
 
 class MainPage extends ConsumerStatefulWidget {
