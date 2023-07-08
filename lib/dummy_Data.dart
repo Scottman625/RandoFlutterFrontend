@@ -11,6 +11,7 @@ List<User> profiles = [
     phone: '0000000000',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'IU',
@@ -19,6 +20,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'CU',
@@ -27,6 +29,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'YU',
@@ -35,6 +38,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'Alice',
@@ -43,6 +47,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'Jane',
@@ -51,6 +56,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   User(
     name: 'Scott',
@@ -59,6 +65,7 @@ List<User> profiles = [
     phone: '0000000001',
     age: 22,
     career: '護理師',
+    about_me: '很愛睡覺',
   ),
   // Add more Users here.
 ];

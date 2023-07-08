@@ -29,11 +29,13 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
       // then parse the JSON.
       String body = utf8.decode(response.bodyBytes);
       Iterable list = json.decode(body);
-      print(list);
+      // print(list);
       return list.map((match) => User.fromJson(match)).toList();
     } else {
-      // If the server response is not a 200 OK,
+      // If the server
+      //response is not a 200 OK,
       // then throw an exception.
+      print('test');
       throw <User>[];
     }
   }
@@ -53,12 +55,14 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
       // then parse the JSON.
       String body = utf8.decode(response.bodyBytes);
       Iterable list = json.decode(body);
-      // print(list);
+      list.map((e) => print(e));
+      // print(list.map((match) => ChatRoom.fromJson(match)).toList());
       return list.map((match) => ChatRoom.fromJson(match)).toList();
     } else {
       // If the server response is not a 200 OK,
       // then throw an exception.
-      throw <User>[];
+      print('yes');
+      throw <ChatRoom>[];
     }
   }
 
@@ -68,14 +72,13 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
 
     print(auth_token);
 
-    final getChatRoomtoken = await http
+    final getChatRoomtokenResponse = await http
         .post(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
       'Authorization': auth_token,
     }, body: {
       'other_side_user_phone': other_side_user_phone,
     });
-    print(getChatRoomtoken.body);
-    String body = utf8.decode(getChatRoomtoken.bodyBytes);
+    String body = utf8.decode(getChatRoomtokenResponse.bodyBytes);
     Map<String, dynamic> chatroomMap = json.decode(body);
     ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);
     print(chatroom.id);
@@ -87,12 +90,14 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
       builder: (ctx) => ChatRoomScreen(
         chatroomId: chatroom.id,
         otherSideImageUrl: chatroom.other_side_image_url,
+        currentUserId: chatroom.current_user_id,
       ),
     ));
   }
 
   @override
   Widget build(BuildContext context) {
+    // print('test02');
     return Expanded(
         child: SingleChildScrollView(
       child: SizedBox(
@@ -102,7 +107,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
             future: fetchChatRooms(),
             builder:
                 (BuildContext context, AsyncSnapshot<List<ChatRoom>> snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data != null) {
                 return ListView.builder(
                     padding: EdgeInsets.only(bottom: 100),
                     itemCount: snapshot.data!.length < 4
@@ -133,11 +138,13 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                         future: fetchMatches(),
                                         builder: (BuildContext context,
                                             AsyncSnapshot<List<User>>
-                                                snapshot) {
-                                          if (snapshot.hasData) {
+                                                asyncSnapshot) {
+                                          if (asyncSnapshot.hasData &&
+                                              asyncSnapshot.data != null) {
                                             return ListView.builder(
                                                 itemCount:
-                                                    snapshot.data!.length + 1,
+                                                    asyncSnapshot.data!.length +
+                                                        1,
                                                 scrollDirection:
                                                     Axis.horizontal,
                                                 itemBuilder: (context, index) {
@@ -214,7 +221,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                                     return InkWell(
                                                       onTap: () {
                                                         navigateToChatroom(
-                                                            snapshot
+                                                            asyncSnapshot
                                                                 .data![
                                                                     index - 1]
                                                                 .phone);
@@ -238,7 +245,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                                                       ClipOval(
                                                                     child: Image
                                                                         .asset(
-                                                                      snapshot
+                                                                      asyncSnapshot
                                                                           .data![index -
                                                                               1]
                                                                           .image,
@@ -255,7 +262,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                                           ),
                                                           Center(
                                                             child: Text(
-                                                                snapshot
+                                                                asyncSnapshot
                                                                     .data![
                                                                         index -
                                                                             1]
@@ -277,8 +284,9 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                                     );
                                                   }
                                                 });
-                                          } else if (snapshot.hasError) {
-                                            return Text("test");
+                                          } else if (asyncSnapshot.hasError) {
+                                            return Text(
+                                                "${asyncSnapshot.error}");
                                           }
                                           return CircularProgressIndicator();
                                         }),
@@ -307,9 +315,12 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                 onTap: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                     builder: (ctx) => ChatRoomScreen(
-                                        chatroomId: snapshot.data![i - 1].id,
-                                        otherSideImageUrl: snapshot
-                                            .data![i - 1].other_side_image_url),
+                                      chatroomId: snapshot.data![i - 1].id,
+                                      otherSideImageUrl: snapshot
+                                          .data![i - 1].other_side_image_url,
+                                      currentUserId:
+                                          snapshot.data![i - 1].current_user_id,
+                                    ),
                                   ));
                                 },
                                 child: ListTile(
