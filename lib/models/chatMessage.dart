@@ -10,7 +10,7 @@ class ChatRoom {
   final User other_side_user;
   final int other_side_age;
   final String other_side_career;
-  final int current_user_id;
+  final String current_user_id;
 
   ChatRoom({
     required this.id,
@@ -31,14 +31,16 @@ class ChatRoom {
       other_side_image_url:
           json['other_side_user']['imageUrl'] ?? json['other_side_image_url'],
       other_side_name:
-          json['other_side_user']['name'] ?? json['other_side_user_name'],
+          json['other_side_user']['name'] ?? json['other_side_name'],
       last_message: json['last_message'] ?? '',
       unread_num: json['unread_num'] ?? 0,
-      last_message_time: DateTime.parse(json['last_message_time']),
+      last_message_time: json['last_message_time'] != null
+          ? DateTime.parse(json['last_message_time'])
+          : DateTime.now(),
       other_side_user: User.fromJson(json['other_side_user']),
       other_side_age: json['other_side_user']['age'] ?? 18,
       other_side_career: json['other_side_user']['career'] ?? '',
-      current_user_id: json['current_user']['id'] ?? '',
+      current_user_id: json['current_user']['id'].toString(),
     );
   }
 }
@@ -51,7 +53,7 @@ class ChatRoom {
 // }
 
 class ChatMessage {
-  final int user_id;
+  final String user_id;
   final String other_side_image_url;
   final String other_side_phone;
   final String message;
@@ -81,7 +83,7 @@ class ChatMessage {
 
 // 從JSON格式轉換為ChatMessage{}
   factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-        user_id: json['user'] ?? '',
+        user_id: json['sender'].toString(),
         other_side_image_url: json['other_side_image_url'] ?? '',
         other_side_phone: json['other_side_phone'] ?? '',
         message: json['content'] ?? '',

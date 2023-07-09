@@ -35,7 +35,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
       // If the server
       //response is not a 200 OK,
       // then throw an exception.
-      print('test');
+      // print('test');
       throw <User>[];
     }
   }
@@ -55,13 +55,13 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
       // then parse the JSON.
       String body = utf8.decode(response.bodyBytes);
       Iterable list = json.decode(body);
-      list.map((e) => print(e));
+      print(list);
       // print(list.map((match) => ChatRoom.fromJson(match)).toList());
       return list.map((match) => ChatRoom.fromJson(match)).toList();
     } else {
       // If the server response is not a 200 OK,
       // then throw an exception.
-      print('yes');
+      // print('yes');
       throw <ChatRoom>[];
     }
   }
@@ -70,7 +70,7 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
     final token = await getToken();
     String auth_token = 'token ${token}';
 
-    print(auth_token);
+    // print(auth_token);
 
     final getChatRoomtokenResponse = await http
         .post(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
@@ -81,7 +81,6 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
     String body = utf8.decode(getChatRoomtokenResponse.bodyBytes);
     Map<String, dynamic> chatroomMap = json.decode(body);
     ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);
-    print(chatroom.id);
 
     // ChatRoom chatroom =
     //     chatroomMap.map((match) => User.fromJson(match)).first();
@@ -324,14 +323,69 @@ class _ChatPageScreenState extends State<ChatPageScreen> {
                                   ));
                                 },
                                 child: ListTile(
-                                  leading: ClipOval(
-                                    child: Image.asset(
-                                      snapshot
-                                          .data![i - 1].other_side_image_url,
-                                      height: 55,
-                                      width: 55,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  leading: SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.15,
+                                    child: Stack(
+                                        children: snapshot
+                                                    .data![i - 1].unread_num >
+                                                0
+                                            ? <Widget>[
+                                                ClipOval(
+                                                  child: Image.asset(
+                                                    snapshot.data![i - 1]
+                                                        .other_side_image_url,
+                                                    height: 55,
+                                                    width: 55,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                Align(
+                                                    alignment:
+                                                        Alignment(0.95, -1.05),
+                                                    child: Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.white),
+                                                    )),
+                                                Align(
+                                                    alignment:
+                                                        Alignment(0.9, -1),
+                                                    child: Container(
+                                                      width: 17,
+                                                      height: 17,
+                                                      decoration: BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.red),
+                                                    )),
+                                                Align(
+                                                    alignment:
+                                                        Alignment(0.75, -1),
+                                                    child: Text(
+                                                      snapshot.data![i - 1]
+                                                          .unread_num
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )),
+                                              ]
+                                            : <Widget>[
+                                                ClipOval(
+                                                  child: Image.asset(
+                                                    snapshot.data![i - 1]
+                                                        .other_side_image_url,
+                                                    height: 55,
+                                                    width: 55,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ]),
                                   ),
                                   title: Text(
                                     snapshot.data![i - 1].other_side_name,
