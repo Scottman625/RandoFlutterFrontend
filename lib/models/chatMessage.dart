@@ -5,7 +5,7 @@ class ChatRoom {
   final String other_side_image_url;
   final String other_side_name;
   final String last_message;
-  final int unread_num;
+  int unread_nums;
   final DateTime last_message_time;
   final User other_side_user;
   final int other_side_age;
@@ -17,7 +17,7 @@ class ChatRoom {
     required this.other_side_image_url,
     required this.other_side_name,
     required this.last_message,
-    required this.unread_num,
+    required this.unread_nums,
     required this.last_message_time,
     required this.other_side_user,
     required this.other_side_age,
@@ -33,7 +33,7 @@ class ChatRoom {
       other_side_name:
           json['other_side_user']['name'] ?? json['other_side_name'],
       last_message: json['last_message'] ?? '',
-      unread_num: json['unread_num'] ?? 0,
+      unread_nums: json['unread_nums'] ?? 0,
       last_message_time: json['last_message_time'] != null
           ? DateTime.parse(json['last_message_time'])
           : DateTime.now(),

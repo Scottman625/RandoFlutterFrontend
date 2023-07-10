@@ -70,19 +70,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     );
 
     if (response.statusCode == 200) {
-      // If the server returns a 200 OK response,
-      // then parse the JSON.
-      // print('a');
       String body = utf8.decode(response.bodyBytes);
       Map<String, dynamic> chatroomMap = json.decode(body);
       ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);
-      // Iterable list = json.decode(body);
-      // print('chatroomMap: ${chatroomMap}');
+      // print(chatroomMap);
+
       return chatroom;
     } else {
-      // If the server response is not a 200 OK,
-      // then throw an exception.
-      // print('b');
       throw <ChatMessage>[];
     }
   }
@@ -90,8 +84,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
   void _sendMessage(int chatroomId, String content) async {
     final token = await getToken();
     String auth_token = 'token ${token}';
-
-    // print(auth_token);
 
     final response = await http.post(
         Uri.parse(
@@ -354,7 +346,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
         // 使用 snapshot.hasData 來檢查是否有可用的資料。
         // 如果 snapshot.data 為 null 或者 snapshot.data 為空，
         // 則顯示 CircularProgressIndicator。
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         }
         final messages = snapshot.data;
@@ -387,7 +379,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                   // 使用 asyncSnapshot.hasData 來檢查是否有可用的資料。
                   // 如果 asyncSnapshot.data 為 null 或者 asyncSnapshot.data 為空，
                   // 則顯示 CircularProgressIndicator。
-                  if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+                  if (asyncSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   }
 
@@ -492,7 +485,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                     // 使用 asyncSnapshot.hasData 來檢查是否有可用的資料。
                     // 如果 asyncSnapshot.data 為 null 或者 asyncSnapshot.data 為空，
                     // 則顯示 CircularProgressIndicator。
-                    if (!asyncSnapshot.hasData || asyncSnapshot.data == null) {
+                    if (asyncSnapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return CircularProgressIndicator();
                     }
 
