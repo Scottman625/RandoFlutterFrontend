@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rando/models/chatMessage.dart';
-import '../token/user_token.dart';
+import '../shared_preferences/shared_preferences.dart';
 import '../screens/profile_swap.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -15,13 +15,15 @@ class ChatRoomScreen extends ConsumerStatefulWidget {
   final int chatroomId;
   final String otherSideImageUrl;
   final String currentUserId;
+  final String chatroomList;
 
-  const ChatRoomScreen(
-      {Key? key,
-      required this.chatroomId,
-      required this.otherSideImageUrl,
-      required this.currentUserId})
-      : super(key: key);
+  const ChatRoomScreen({
+    Key? key,
+    required this.chatroomId,
+    required this.otherSideImageUrl,
+    required this.currentUserId,
+    required this.chatroomList,
+  }) : super(key: key);
   // const ChatRoomScreen({super.key, required this.chatroomId});
 
   @override
@@ -206,8 +208,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (ctx) =>
-                                    ProfileSwapScreen())); // 当点击箭头图标时，返回上一页面
+                                builder: (ctx) => ProfileSwapScreen(
+                                      chatroomList: widget.chatroomList,
+                                    ))); // 当点击箭头图标时，返回上一页面
                           },
                         ),
                       )),

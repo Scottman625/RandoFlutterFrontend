@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/main_appbar.dart';
 import '../screens/profile_swap.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../providers/loginstate_provider.dart';
+import '../shared_preferences/shared_preferences.dart';
 
-class Register extends StatefulWidget {
+class Register extends ConsumerStatefulWidget {
   const Register({super.key});
 
   @override
-  State<Register> createState() => _RegisterState();
+  ConsumerState<Register> createState() => _RegisterState();
 }
 
-class _RegisterState extends State<Register> {
+class _RegisterState extends ConsumerState<Register> {
   final _formKey = GlobalKey<FormState>();
 
   var _phoneNumber = '';
@@ -43,9 +46,28 @@ class _RegisterState extends State<Register> {
               'password': _password,
             });
         print(jsonDecode(response.body)['phone']);
-        if (jsonDecode(response.body)['phone'] != null) {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (ctx) => ProfileSwapScreen()));
+        final token = jsonDecode(response.body)['token'];
+        if (token != null) {
+          saveToken(token);
+          ref.read(authStateProvider.notifier).login();
+          fetchChatRoomsData();
+          var chatroom_list = await getChatRoomList();
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (ctx) => ProfileSwapScreen(
+                    chatroomList: chatroom_list,
+                  )));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Center(
+                child: Text(
+                  '電話號碼或密碼不正確!',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     }

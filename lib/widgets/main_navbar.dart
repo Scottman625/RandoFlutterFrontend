@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/page_provider.dart';
-import '../token/user_token.dart';
+import '../shared_preferences/shared_preferences.dart';
 
 class MainNavbar extends ConsumerStatefulWidget {
   const MainNavbar({super.key});

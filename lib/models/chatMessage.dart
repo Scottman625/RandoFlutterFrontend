@@ -25,6 +25,19 @@ class ChatRoom {
     required this.current_user_id,
   });
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'other_side_image_url': other_side_image_url,
+        'other_side_name': other_side_name,
+        'last_message': last_message,
+        'last_message_time': last_message_time.toIso8601String(),
+        'unread_nums': unread_nums,
+        'other_side_user': other_side_user.toJson(),
+        'other_side_age': other_side_age,
+        'other_side_career': other_side_career,
+        'current_user_id': current_user_id,
+      };
+
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id'],

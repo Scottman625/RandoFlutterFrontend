@@ -4,7 +4,11 @@ import '../widgets/main_appbar.dart';
 import '../widgets/main_navbar.dart';
 
 class ProfileSwapScreen extends StatefulWidget {
-  const ProfileSwapScreen({super.key});
+  final String chatroomList;
+  const ProfileSwapScreen({
+    super.key,
+    required this.chatroomList,
+  });
 
   @override
   State<ProfileSwapScreen> createState() => _ProfileSwapScreen();

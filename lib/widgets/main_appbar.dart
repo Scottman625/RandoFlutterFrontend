@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../screens/index.dart';
-import '../token/user_token.dart';
+import '../shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/token_provider.dart';
+import '../providers/loginstate_provider.dart';
 
 Future<bool> checkIfLoggedIn() async {
   bool isLoggedIn;

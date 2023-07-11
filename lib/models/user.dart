@@ -22,6 +22,18 @@ class User {
     required this.about_me,
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'image': image,
+      'gender': gender,
+      'phone': phone,
+      'age': age,
+      'career': career,
+      'about_me': about_me,
+    };
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       name: json['name'],

@@ -3,9 +3,9 @@ import '../screens/profile_swap.dart';
 import '../widgets/main_appbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../token/user_token.dart';
+import '../shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/token_provider.dart';
+import '../providers/loginstate_provider.dart';
 
 class PhoneLogIn extends ConsumerStatefulWidget {
   const PhoneLogIn({super.key});
@@ -39,8 +39,12 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
         if (token != null) {
           saveToken(token);
           ref.read(authStateProvider.notifier).login();
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (ctx) => ProfileSwapScreen()));
+          fetchChatRoomsData();
+          var chatroom_list = await getChatRoomList();
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (ctx) => ProfileSwapScreen(
+                    chatroomList: chatroom_list,
+                  )));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
