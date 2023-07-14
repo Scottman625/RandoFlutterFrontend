@@ -8,9 +8,17 @@ import '../dummy_Data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'chat_list.dart';
 import '../providers/page_provider.dart';
+import '../models/chatMessage.dart';
 
 class MainPage extends ConsumerStatefulWidget {
-  const MainPage({super.key});
+  // final String chatroomList;
+  final String userId;
+
+  const MainPage({
+    super.key,
+    // required this.chatroomList,
+    required this.userId,
+  });
 
   @override
   ConsumerState<MainPage> createState() => _MainPageState();
@@ -23,7 +31,7 @@ class _MainPageState extends ConsumerState<MainPage> {
     if (page == 0) {
       return Column(
         children: [
-          MainAppBar(Colors.white),
+          MainAppBar(Colors.white, widget.userId),
           Expanded(
             child: CardSwiper(
               controller: controller,
@@ -45,8 +53,16 @@ class _MainPageState extends ConsumerState<MainPage> {
         ],
       );
     } else if (page == 1) {
+      // print(widget.chatroomList);
       return Column(
-        children: [MainAppBar(Colors.white), ChatPageScreen(), MainNavbar()],
+        children: [
+          MainAppBar(Colors.white, widget.userId),
+          ChatPageScreen(
+            // chatroomList: widget.chatroomList,
+            userId: widget.userId,
+          ),
+          MainNavbar()
+        ],
       );
     } else if (page == 2) {
       return Column(

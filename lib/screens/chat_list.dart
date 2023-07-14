@@ -5,10 +5,10 @@ import '../models/user.dart';
 import 'chatroom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:web_socket_channel/io.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/chatroom_provider.dart';
+import '../web_socket.dart';
+import '../providers/websocket_provider.dart';
 
 Future<List<ChatRoom>> fetchChatRooms() async {
   final token = await getToken();
@@ -24,8 +24,9 @@ Future<List<ChatRoom>> fetchChatRooms() async {
     // If the server returns a 200 OK response,
     // then parse the JSON.
     String body = utf8.decode(response.bodyBytes);
+    // print(body);
     Iterable list = json.decode(body);
-
+    // print(list);
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,
@@ -60,34 +61,23 @@ Future<List<User>> fetchMatches() async {
   }
 }
 
-Stream<List<ChatRoom>> chatRoomsStream() async* {
-  final _channel = IOWebSocketChannel.connect(
-      'ws://127.0.0.1:8000/ws/chatroom_unread_nums/');
-
-  // Get the initial list of chat rooms.
-  List<ChatRoom> chatRooms = await fetchChatRooms();
-  yield chatRooms;
-
-  // Listen to the WebSocket stream.
-  await for (var message in _channel.stream) {
-    // Get the new list of chat rooms.
-    chatRooms = await fetchChatRooms();
-
-    // Yield the new list.
-    yield chatRooms;
-  }
-}
-
 class ChatPageScreen extends ConsumerStatefulWidget {
-  const ChatPageScreen({super.key});
+  const ChatPageScreen({
+    super.key,
+    required this.userId,
+    // required this.chatroomList,
+  });
+
+  final String userId;
+  // final String chatroomList;
 
   @override
   ConsumerState<ChatPageScreen> createState() => _ChatPageScreenState();
 }
 
 class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
-  List<dynamic> unreadNumList = [];
   List<ChatRoom> chatRoomList = [];
+  String map = "";
 
   @override
   void initState() {
@@ -96,25 +86,26 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   }
 
   void loadChatRooms() async {
-    List<dynamic> list = jsonDecode(await getChatRoomList());
-
-    List<ChatRoom> chatRooms =
-        list.map((chatroom) => ChatRoom.fromJson(chatroom)).toList();
+    var list = await fetchChatRooms();
     setState(() {
-      chatRoomList = chatRooms;
+      chatRoomList = list;
+      map = jsonEncode({
+        "type": "chatrooms",
+        "chatrooms": list,
+        "messages": [],
+      });
     });
-    print(chatRoomList);
   }
 
   void navigateToChatroom(String other_side_user_phone) async {
     final token = await getToken();
-    String auth_token = 'token ${token}';
+    String authToken = 'token ${token}';
 
     // print(auth_token);
 
     final getChatRoomtokenResponse = await http
         .post(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
-      'Authorization': auth_token,
+      'Authorization': authToken,
     }, body: {
       'other_side_user_phone': other_side_user_phone,
     });
@@ -127,10 +118,10 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
 
     Navigator.of(context).push(MaterialPageRoute(
       builder: (ctx) => ChatRoomScreen(
-        chatroomList: jsonEncode(chatRoomList),
+        // chatroomList: jsonEncode(widget.chatroomList),
         chatroomId: chatroom.id,
         otherSideImageUrl: chatroom.other_side_image_url,
-        currentUserId: chatroom.current_user_id,
+        currentUserId: chatroom.current_user_id.toString(),
       ),
     ));
   }
@@ -144,173 +135,162 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
           height: MediaQuery.of(context).size.height * 0.88,
           child: Column(
             children: [
-              Container(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const Padding(
-                        padding: EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          '新的配對',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        '新的配對',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      Container(
-                        height: 85,
-                        width: MediaQuery.of(context).size.width * 0.95,
-                        child: SingleChildScrollView(
-                          // scrollDirection: Axis.horizontal,
-                          child: SizedBox(
-                            height: 85,
-                            child: FutureBuilder<List<User>>(
-                                future: fetchMatches(),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<List<User>> asyncSnapshot) {
-                                  if (asyncSnapshot.hasData &&
-                                      asyncSnapshot.data != null) {
-                                    return ListView.builder(
-                                        itemCount:
-                                            asyncSnapshot.data!.length + 1,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (context, index) {
-                                          if (index == 0) {
-                                            return Container(
+                    ),
+                    SizedBox(
+                      height: 85,
+                      width: MediaQuery.of(context).size.width * 0.95,
+                      child: SingleChildScrollView(
+                        // scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          height: 85,
+                          child: FutureBuilder<List<User>>(
+                              future: fetchMatches(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<List<User>> asyncSnapshot) {
+                                if (asyncSnapshot.hasData &&
+                                    asyncSnapshot.data != null) {
+                                  return ListView.builder(
+                                      itemCount: asyncSnapshot.data!.length + 1,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (context, index) {
+                                        if (index == 0) {
+                                          return SizedBox(
+                                            height: 85,
+                                            width: 65,
+                                            child: Column(children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Stack(
+                                                    alignment: Alignment.center,
+                                                    children: [
+                                                      Container(
+                                                        width: 50,
+                                                        height: 50,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors
+                                                              .purpleAccent,
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 47,
+                                                        height: 47,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        width: 44,
+                                                        height: 44,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color: Colors
+                                                              .purpleAccent,
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.electric_bolt,
+                                                          color: Colors.white,
+                                                          size: 30,
+                                                        ),
+                                                      )
+                                                    ]),
+                                              ),
+                                              const Text('更多配對',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          Colors.purpleAccent,
+                                                      fontWeight:
+                                                          FontWeight.bold))
+                                            ]),
+                                          );
+                                        } else {
+                                          return InkWell(
+                                            onTap: () {
+                                              navigateToChatroom(asyncSnapshot
+                                                  .data![index - 1].phone);
+                                            },
+                                            child: SizedBox(
                                               height: 85,
                                               width: 65,
                                               child: Column(children: [
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.all(8.0),
-                                                  child: Container(
-                                                    child: Stack(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        children: [
-                                                          Container(
-                                                            width: 50,
+                                                  child: SizedBox(
+                                                    child: Align(
+                                                      alignment:
+                                                          const Alignment(
+                                                              0.9, 0),
+                                                      child: Center(
+                                                        child: ClipOval(
+                                                          child: Image.asset(
+                                                            asyncSnapshot
+                                                                .data![
+                                                                    index - 1]
+                                                                .image,
                                                             height: 50,
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color: Colors
-                                                                  .purpleAccent,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            width: 47,
-                                                            height: 47,
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            width: 44,
-                                                            height: 44,
-                                                            decoration:
-                                                                const BoxDecoration(
-                                                              shape: BoxShape
-                                                                  .circle,
-                                                              color: Colors
-                                                                  .purpleAccent,
-                                                            ),
-                                                            child: const Icon(
-                                                              Icons
-                                                                  .electric_bolt,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: 30,
-                                                            ),
-                                                          )
-                                                        ]),
-                                                  ),
-                                                ),
-                                                const Text('更多配對',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color:
-                                                            Colors.purpleAccent,
-                                                        fontWeight:
-                                                            FontWeight.bold))
-                                              ]),
-                                            );
-                                          } else {
-                                            return InkWell(
-                                              onTap: () {
-                                                navigateToChatroom(asyncSnapshot
-                                                    .data![index - 1].phone);
-                                              },
-                                              child: SizedBox(
-                                                height: 85,
-                                                width: 65,
-                                                child: Column(children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: SizedBox(
-                                                      child: Align(
-                                                        alignment:
-                                                            const Alignment(
-                                                                0.9, 0),
-                                                        child: Center(
-                                                          child: ClipOval(
-                                                            child: Image.asset(
-                                                              asyncSnapshot
-                                                                  .data![
-                                                                      index - 1]
-                                                                  .image,
-                                                              height: 50,
-                                                              width: 50,
-                                                              fit: BoxFit.cover,
-                                                            ),
+                                                            width: 50,
+                                                            fit: BoxFit.cover,
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                  Center(
-                                                    child: Text(
-                                                        asyncSnapshot
-                                                            .data![index - 1]
-                                                            .name,
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.black,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ),
-                                                ]),
-                                              ),
-                                            );
-                                          }
-                                        });
-                                  } else if (asyncSnapshot.hasError) {
-                                    return Text("${asyncSnapshot.error}");
-                                  }
-                                  return Column();
-                                }),
-                          ),
+                                                ),
+                                                Center(
+                                                  child: Text(
+                                                      asyncSnapshot
+                                                          .data![index - 1]
+                                                          .name,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
+                                              ]),
+                                            ),
+                                          );
+                                        }
+                                      });
+                                } else if (asyncSnapshot.hasError) {
+                                  return Text("${asyncSnapshot.error}");
+                                }
+                                return const Column();
+                              }),
                         ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8.0, left: 10),
-                        child: Text(
-                          '聊天',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8.0, left: 10),
+                      child: Text(
+                        '聊天',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                    ]),
-              ),
+                    ),
+                  ]),
               streamBuilder()
             ],
           )),
@@ -318,26 +298,37 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   }
 
   Widget streamBuilder() {
+    final webSocketService = ref.read(webSocketServiceProvider(
+        'ws://127.0.0.1:8000/ws/chatRoomMessages/${widget.userId}/'));
+    webSocketService.addData(map);
+    webSocketService.chatRoomsStream.listen((event) {
+      // print(event); //
+    });
+    final chatRoomsStream = webSocketService.chatRoomsStream;
     return StreamBuilder<List<ChatRoom>>(
-      stream: chatRoomsStream(),
-      initialData: chatRoomList,
+      stream: chatRoomsStream,
+      // initialData: chatRoomList,
       builder: (BuildContext context, AsyncSnapshot<List<ChatRoom>> snapshot) {
+        // print(snapshot.data);
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Column();
+          return const Column();
         }
-
-        if (!snapshot.hasData) {
-          return Text('No data!');
+        if (snapshot.hasData) {
+          return chatListContent(snapshot);
         }
-
-        return chatListContent(snapshot);
+        return const Text('目前還沒有建立訊息！');
       },
     );
   }
 
   Widget chatListContent(streamSnapshot) {
     return Expanded(
-      child: Container(height: 570, child: listViewBuilder(streamSnapshot)),
+      child: SizedBox(
+          height: 570,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 55.0),
+            child: listViewBuilder(streamSnapshot),
+          )),
     );
   }
 
@@ -346,22 +337,19 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
         itemCount: (streamSnapshot.data?.length ?? 1) < 4
             ? 5
             : streamSnapshot.data!.length + 1,
-        // (streamSnapshot.data?.length ?? 1) < 5
-        //     ? 5
-        //     : streamSnapshot.data!.length + 1,
         itemBuilder: (BuildContext context, int index) {
-          // print('index ${index}');
-          // print(streamSnapshot.data?.length);
           if (index == 0) {
             return Container();
           } else if (index > streamSnapshot.data!.length && index < 5) {
             return SizedBox(height: MediaQuery.of(context).size.height * 0.1);
           } else {
-            print(streamSnapshot.data);
+            // print(streamSnapshot.data);
             final chatRoom = streamSnapshot.data?[index - 1];
-            final newChatroomList =
-                jsonEncode(streamSnapshot.data.map((e) => e.toJson()).toList());
-            return Container(
+            // print(chatRoom);
+            // final newChatroomList =
+            //     jsonEncode(streamSnapshot.data.map((e) => e.toJson()).toList());
+
+            return SizedBox(
               height: MediaQuery.of(context).size.height * 0.1,
               width: MediaQuery.of(context).size.width,
               child: Column(
@@ -371,19 +359,18 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                         onTap: () async {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (ctx) => ChatRoomScreen(
-                              chatroomList: newChatroomList,
-                              chatroomId: streamSnapshot.data[index - 1].id,
-                              otherSideImageUrl: streamSnapshot
-                                  .data![index - 1].other_side_image_url,
-                              currentUserId: streamSnapshot
-                                  .data![index - 1].current_user_id,
+                              // chatroomList: newChatroomList,
+                              chatroomId: chatRoom.id,
+                              otherSideImageUrl: chatRoom.other_side_image_url,
+                              currentUserId:
+                                  chatRoom.current_user_id.toString(),
                             ),
                           ));
                         },
                         child: SizedBox(
                             height: 60,
                             width: MediaQuery.of(context).size.width,
-                            child: Container(
+                            child: SizedBox(
                               height: 60,
                               width: MediaQuery.of(context).size.width,
                               child: ListTile(
@@ -403,8 +390,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                 ),
                                               ),
                                               Align(
-                                                  alignment:
-                                                      Alignment(0.95, -1.05),
+                                                  alignment: const Alignment(
+                                                      0.95, -1.05),
                                                   child: Container(
                                                     width: 20,
                                                     height: 20,
@@ -416,7 +403,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                                 Colors.white),
                                                   )),
                                               Align(
-                                                  alignment: Alignment(0.9, -1),
+                                                  alignment:
+                                                      const Alignment(0.9, -1),
                                                   child: Container(
                                                     width: 17,
                                                     height: 17,
@@ -428,7 +416,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                   )),
                                               Align(
                                                   alignment:
-                                                      Alignment(0.75, -1),
+                                                      const Alignment(0.75, -1),
                                                   child: Text(
                                                     chatRoom.unread_nums
                                                         .toString(),
@@ -460,7 +448,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Text(
                                     chatRoom.last_message,
-                                    style: TextStyle(fontSize: 20),
+                                    style: const TextStyle(fontSize: 20),
                                   ),
                                 ),
                               ),
@@ -475,5 +463,10 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
             );
           }
         });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

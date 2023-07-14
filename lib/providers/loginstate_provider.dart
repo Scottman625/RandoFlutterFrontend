@@ -21,13 +21,17 @@ class AuthState extends StateNotifier<bool> {
 
   // 登入和登出操作
   Future<void> login() async {
-    await sharedPreferences!.setBool('isLoggedIn', true);
-    state = true;
+    if (sharedPreferences != null) {
+      await sharedPreferences!.setBool('isLoggedIn', true);
+      state = true;
+    }
   }
 
   Future<void> logout() async {
-    await sharedPreferences!.setBool('isLoggedIn', false);
-    state = false;
+    if (sharedPreferences != null) {
+      await sharedPreferences!.setBool('isLoggedIn', false);
+      state = false;
+    }
   }
 }
 

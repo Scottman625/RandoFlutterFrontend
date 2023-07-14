@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../widgets/main_appbar.dart';
 import '../screens/profile_swap.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/loginstate_provider.dart';
 import '../shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import '../web_socket.dart';
 
 class Register extends ConsumerStatefulWidget {
   const Register({super.key});
@@ -45,16 +46,25 @@ class _RegisterState extends ConsumerState<Register> {
               'phone': _phoneNumber,
               'password': _password,
             });
-        print(jsonDecode(response.body)['phone']);
+
         final token = jsonDecode(response.body)['token'];
         if (token != null) {
           saveToken(token);
+          String auth_token = 'token $token';
+          final response = await http
+              .get(Uri.parse('http://127.0.0.1:8000/api/user/me/'), headers: {
+            'Authorization': auth_token,
+          });
+          String UserId = jsonDecode(response.body)['id'];
+
           ref.read(authStateProvider.notifier).login();
-          fetchChatRoomsData();
-          var chatroom_list = await getChatRoomList();
+          // final _channel = WebSocketService()
+          //     .create('ws://127.0.0.1:8000/ws/chatRoomMessages/${UserId}/');
+          const chatroomList = '';
           Navigator.of(context).push(MaterialPageRoute(
               builder: (ctx) => ProfileSwapScreen(
-                    chatroomList: chatroom_list,
+                    // chatroomList: chatroomList,
+                    userId: UserId.toString(),
                   )));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -75,8 +85,10 @@ class _RegisterState extends ConsumerState<Register> {
     return Scaffold(
       body: Column(
         children: [
-          MainAppBar(Colors.lightBlueAccent),
-          Row(
+          SizedBox(
+            height: 120,
+          ),
+          const Row(
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -92,10 +104,11 @@ class _RegisterState extends ConsumerState<Register> {
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 25.0, left: 25, right: 25),
+                    padding:
+                        const EdgeInsets.only(top: 25.0, left: 25, right: 25),
                     child: TextFormField(
                       maxLength: 10,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           enabledBorder: OutlineInputBorder(
                               borderSide:
                                   BorderSide(color: Colors.black, width: 2.0)),
@@ -117,11 +130,11 @@ class _RegisterState extends ConsumerState<Register> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 25, right: 25),
+                    padding: const EdgeInsets.only(left: 25, right: 25),
                     child: TextFormField(
                       maxLength: 30,
                       controller: passwordController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           enabledBorder: OutlineInputBorder(
                               borderSide:
                                   BorderSide(color: Colors.black, width: 2.0)),
@@ -147,7 +160,7 @@ class _RegisterState extends ConsumerState<Register> {
                     child: TextFormField(
                       maxLength: 30,
                       controller: confirmPasswordController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           enabledBorder: OutlineInputBorder(
                               borderSide:
                                   BorderSide(color: Colors.black, width: 2.0)),

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:rando/providers/websocket_provider.dart';
 import '../screens/index.dart';
 import '../shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/loginstate_provider.dart';
+import '../providers/page_provider.dart';
+import '../providers/websocket_provider.dart';
 
 Future<bool> checkIfLoggedIn() async {
   bool isLoggedIn;
@@ -14,20 +17,23 @@ Future<bool> checkIfLoggedIn() async {
   return isLoggedIn;
 }
 
-Future<bool> checkIfLoggedOut() async {
-  bool isLoggedOut;
-  if (getToken() == '') {
-    isLoggedOut = true;
-  } else {
-    isLoggedOut = false;
-  }
-  return isLoggedOut;
-}
+// Future<bool> checkIfLoggedOut() async {
+//   bool isLoggedOut;
+//   if (getToken() == '') {
+//     isLoggedOut = true;
+//     print('logout');
+//     removeToken();
+//   } else {
+//     isLoggedOut = false;
+//   }
+//   return isLoggedOut;
+// }
 
 class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final Color color;
+  final String userId;
 
-  MainAppBar(this.color);
+  MainAppBar(this.color, this.userId);
 
   @override
   Size get preferredSize => const Size.fromHeight(55);
@@ -51,9 +57,9 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   child: Align(
                     alignment: const Alignment(0, 1.25),
                     child: IconButton(
-                      icon: Icon(Icons.arrow_back),
+                      icon: const Icon(Icons.arrow_back),
                       onPressed: () {
-                        Navigator.pop(context); // 当点击箭头图标时，返回上一页面
+                        Navigator.pop(context);
                       },
                     ),
                   )),
@@ -70,7 +76,7 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
           ),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.35,
-            child: Align(
+            child: const Align(
               alignment: Alignment(-1, 0.95),
               child: Text(
                 'Rando',
@@ -82,23 +88,26 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
               ),
             ),
           ),
-          checkLoggedInState
-              ? SizedBox(
-                  child: Align(
-                  alignment: const Alignment(0, 1.25),
-                  child: IconButton(
-                    icon: Icon(Icons.logout),
-                    onPressed: () {
-                      removeToken();
-                      ref.read(authStateProvider.notifier).logout();
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (ctx) => IndexPage())); // 当点击箭头图标时，返回上一页面
-                    },
-                  ),
-                ))
-              : SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.15,
-                ),
+          SizedBox(
+              child: Align(
+            alignment: const Alignment(0, 1.25),
+            child: IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                var user_id = userId;
+                removeToken(user_id);
+                ref.read(authStateProvider.notifier).logout();
+                ref.read(selectPageProvider.notifier).togglePage(0);
+                final String url =
+                    'ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/';
+                final webSocketService =
+                    ref.read(webSocketServiceProvider(url));
+                webSocketService.close();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (ctx) => IndexPage())); // 当点击箭头图标时，返回上一页面
+              },
+            ),
+          ))
         ],
       ),
     );

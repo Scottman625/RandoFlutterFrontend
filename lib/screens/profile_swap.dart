@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'main_page.dart';
-import '../widgets/main_appbar.dart';
-import '../widgets/main_navbar.dart';
 
 class ProfileSwapScreen extends StatefulWidget {
-  final String chatroomList;
+  // final String chatroomList;
+  final String userId;
   const ProfileSwapScreen({
     super.key,
-    required this.chatroomList,
+    // required this.chatroomList,
+    required this.userId,
   });
 
   @override
@@ -19,9 +19,12 @@ class _ProfileSwapScreen extends State<ProfileSwapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        body: Container(
+        body: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: MainPage()));
+            child: MainPage(
+              // chatroomList: widget.chatroomList,
+              userId: widget.userId,
+            )));
   }
 }

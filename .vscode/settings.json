@@ -1,3 +1,4 @@
 {
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "cmake.sourceDirectory": "/Users/fangshengjie/Documents/Flutter/Rando/flutter_fronend/linux"
 }

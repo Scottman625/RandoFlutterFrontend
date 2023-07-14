@@ -1,10 +1,11 @@
 import 'models/user.dart';
 import 'models/userMate.dart';
-import 'models/chatMessage.dart';
+// import 'models/chatMessage.dart';
 import 'dart:math';
 
 List<User> profiles = [
   User(
+    id: 1,
     name: 'Amy',
     image: 'assets/images/Amy.png',
     gender: 'Female',
@@ -14,6 +15,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 2,
     name: 'IU',
     image: 'assets/images/IU.png',
     gender: 'Female',
@@ -23,6 +25,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 3,
     name: 'CU',
     image: 'assets/images/CU.png',
     gender: 'Female',
@@ -32,6 +35,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 6,
     name: 'YU',
     image: 'assets/images/YU.png',
     gender: 'Female',
@@ -41,6 +45,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 7,
     name: 'Alice',
     image: 'assets/images/Alice.png',
     gender: 'Female',
@@ -50,6 +55,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 8,
     name: 'Jane',
     image: 'assets/images/Jane.png',
     gender: 'Female',
@@ -59,6 +65,7 @@ List<User> profiles = [
     about_me: '很愛睡覺',
   ),
   User(
+    id: 5,
     name: 'Scott',
     image: 'assets/images/Scott.png',
     gender: 'Male',

@@ -4,6 +4,7 @@ Map<String, String> genders = {
 };
 
 class User {
+  final int id;
   final String name;
   final String image;
   final String gender;
@@ -13,6 +14,7 @@ class User {
   final String about_me;
 
   User({
+    required this.id,
     required this.name,
     required this.image,
     required this.gender,
@@ -24,6 +26,7 @@ class User {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'image': image,
       'gender': gender,
@@ -36,8 +39,9 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      id: json['id'],
       name: json['name'],
-      image: json['imageUrl'],
+      image: json['imageUrl'] ?? '',
       gender: json['gender'],
       phone: json['phone'],
       age: json['age'] ?? 18,

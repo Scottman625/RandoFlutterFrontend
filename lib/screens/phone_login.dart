@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../screens/profile_swap.dart';
-import '../widgets/main_appbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/loginstate_provider.dart';
+import 'dart:async';
+import '../providers/websocket_provider.dart';
 
 class PhoneLogIn extends ConsumerStatefulWidget {
   const PhoneLogIn({super.key});
@@ -38,16 +39,23 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
         final token = jsonDecode(response.body)['token'];
         if (token != null) {
           saveToken(token);
+          String auth_token = 'token ${token}';
+          final response = await http
+              .get(Uri.parse('http://127.0.0.1:8000/api/user/me/'), headers: {
+            'Authorization': auth_token,
+          });
+          int UserId = jsonDecode(response.body)['id'];
           ref.read(authStateProvider.notifier).login();
-          fetchChatRoomsData();
-          var chatroom_list = await getChatRoomList();
+
+          ref.watch(webSocketServiceProvider(
+              'ws://127.0.0.1:8000/ws/chatRoomMessages/${UserId}/'));
           Navigator.of(context).push(MaterialPageRoute(
               builder: (ctx) => ProfileSwapScreen(
-                    chatroomList: chatroom_list,
+                    userId: UserId.toString(),
                   )));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Center(
                 child: Text(
                   '電話號碼或密碼不正確!',
@@ -70,8 +78,10 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            MainAppBar(Colors.lightBlueAccent),
-            Row(
+            const SizedBox(
+              height: 120,
+            ),
+            const Row(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -90,7 +100,7 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
                       padding: EdgeInsets.only(top: 25.0, left: 25, right: 25),
                       child: TextFormField(
                         maxLength: 10,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Colors.black, width: 2.0)),

@@ -5,8 +5,8 @@ import '../screens/chat_list.dart';
 import '../models/chatMessage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:web_socket_channel/io.dart';
 import 'dart:async';
+import '../web_socket.dart';
 
 void saveToken(String token) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -23,7 +23,8 @@ Future<String> getToken() async {
   return token;
 }
 
-void removeToken() async {
+void removeToken(userId) async {
+  // print('logout');
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove('token');
 }
@@ -57,6 +58,7 @@ Future<List<User>> fetchMatches() async {
 void fetchChatRoomsList() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final token = await getToken();
+
   String auth_token = 'token ${token}';
   final response = await http.get(
     Uri.parse('http://127.0.0.1:8000/api/chatroom/'),
@@ -82,31 +84,33 @@ void fetchChatRoomsList() async {
   }
 }
 
-void fetchChatRoomsData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+// void fetchChatRoomsData(userId) async {
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   print('fetchChatRoomData: ${userId}');
+//   final _channel = WebSocketService()
+//       .create('ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/');
 
-  IOWebSocketChannel? _channel;
-  _channel = IOWebSocketChannel.connect(
-      'ws://127.0.0.1:8000/ws/chatroom_unread_nums/');
+//   final newChatRooms = await fetchChatRooms();
+//   final chatRoomJsonList =
+//       jsonEncode(newChatRooms.map((e) => e.toJson()).toList());
+//   print('chattype: ${jsonDecode(chatRoomJsonList).runtimeType}');
+//   await prefs.setString('chatroom_list', chatRoomJsonList);
 
-  final newChatRooms = await fetchChatRooms();
-  await prefs.setString('chatroom_list',
-      jsonEncode(newChatRooms.map((e) => e.toJson()).toList()));
+//   // await for (var _ in WebSocketService().stream) {
+//   //   // Get the new list of chat rooms.
+//   //   await prefs.setString('chatroom_list',
+//   //       jsonEncode(newChatRooms.map((e) => e.toJson()).toList()));
+//   // }
+//   // return _channel;
+// }
 
-  _channel.stream.listen((message) async {
-    final newChatRooms = await fetchChatRooms();
-    await prefs.setString('chatroom_list',
-        jsonEncode(newChatRooms.map((e) => e.toJson()).toList()));
-// 更新聊天室列表
-  });
-}
-
-Future<String> getChatRoomList() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String chatroom_list_str = prefs.getString('chatroom_list') ?? '';
-  if (chatroom_list_str == '') {
-    debugPrint('chatroom_list_str is empty');
-  }
-  // print(token);
-  return chatroom_list_str;
-}
+// Future<String> getChatRoomList() async {
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   String chatroom_list_str = prefs.getString('chatroom_list') ?? '';
+//   print('chatroom_list_str: ${chatroom_list_str}');
+//   if (chatroom_list_str == '') {
+//     debugPrint('chatroom_list_str is empty');
+//   }
+//   // print(token);
+//   return chatroom_list_str;
+// }
