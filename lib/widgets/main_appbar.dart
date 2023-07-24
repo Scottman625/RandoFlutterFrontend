@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/loginstate_provider.dart';
 import '../providers/page_provider.dart';
 import '../providers/websocket_provider.dart';
+import '../global.dart';
 
 Future<bool> checkIfLoggedIn() async {
   bool isLoggedIn;
@@ -16,18 +17,6 @@ Future<bool> checkIfLoggedIn() async {
   }
   return isLoggedIn;
 }
-
-// Future<bool> checkIfLoggedOut() async {
-//   bool isLoggedOut;
-//   if (getToken() == '') {
-//     isLoggedOut = true;
-//     print('logout');
-//     removeToken();
-//   } else {
-//     isLoggedOut = false;
-//   }
-//   return isLoggedOut;
-// }
 
 class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final Color color;
@@ -41,7 +30,8 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final checkLoggedInState = ref.watch(authStateProvider);
-    // print(checkLoggedInState);
+    print('current_user: ${userId}');
+
     return Container(
       color: color,
       width: MediaQuery.of(context).size.width,
@@ -98,11 +88,13 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 removeToken(user_id);
                 ref.read(authStateProvider.notifier).logout();
                 ref.read(selectPageProvider.notifier).togglePage(0);
-                final String url =
-                    'ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/';
-                final webSocketService =
-                    ref.read(webSocketServiceProvider(url));
-                webSocketService.close();
+                // final String url =
+                //     'ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/';
+                // final webSocketService =GlobalVariables.websocketServiceNotifier?.state;
+                final webSocketServiceNotifier =
+                    ref.read(webSocketServiceNotifierProvider);
+
+                webSocketServiceNotifier.close();
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (ctx) => IndexPage())); // 当点击箭头图标时，返回上一页面
               },

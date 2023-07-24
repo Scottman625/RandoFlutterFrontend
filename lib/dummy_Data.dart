@@ -13,6 +13,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 2,
@@ -23,6 +24,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 3,
@@ -33,6 +35,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 6,
@@ -43,6 +46,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 7,
@@ -53,6 +57,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 8,
@@ -63,6 +68,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   User(
     id: 5,
@@ -73,6 +79,7 @@ List<User> profiles = [
     age: 22,
     career: '護理師',
     about_me: '很愛睡覺',
+    total_likes_count: 5,
   ),
   // Add more Users here.
 ];

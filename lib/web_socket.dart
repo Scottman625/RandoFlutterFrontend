@@ -17,9 +17,11 @@ class WebSocketService {
     _channel = IOWebSocketChannel.connect(url);
     _channel!.stream.listen(
       (event) {
+        // print('Received event: $event'); // Add this line
         _subject!.add(event);
       },
       onError: (err) {
+        print('Received error: $err'); // And this one
         _subject!.addError(err);
       },
       onDone: _subject!.close,
@@ -53,20 +55,21 @@ class WebSocketService {
     return _subject!.stream.transform(
       StreamTransformer.fromHandlers(
         handleData: (jsonString, sink) {
+          // print('jsonString: ${jsonString}');
           if (jsonString != null && jsonString.isNotEmpty) {
-            // print('jsonString: ${jsonString}');
             try {
               var map = jsonDecode(jsonString);
-              // print('map: ${map['messages']}');
-              if (map['type'] == 'chatrooms' && map['messages'] != null) {
-                List<dynamic> list = map['messages'];
-                List<ChatMessage> messages =
-                    list.map((e) => ChatMessage.fromJson(e)).toList();
-                sink.add(messages);
-              }
+
+              List<dynamic> list = map['messages'] ?? [];
+              List<ChatMessage> messages =
+                  list.map((e) => ChatMessage.fromJson(e)).toList();
+              sink.add(messages);
             } catch (e) {
               print('Failed to decode JSON: $e');
+              sink.addError(e);
             }
+          } else {
+            sink.add([]); // Add an empty list when jsonString is null or empty
           }
         },
       ),
@@ -75,6 +78,7 @@ class WebSocketService {
 
   void addData(dynamic data) {
     _subject!.add(data);
+    _channel?.sink.add(data);
   }
 
   bool isWebSocketConnected() {

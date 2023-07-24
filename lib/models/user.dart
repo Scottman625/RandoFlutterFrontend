@@ -12,6 +12,7 @@ class User {
   final int age;
   final String career;
   final String about_me;
+  int total_likes_count;
 
   User({
     required this.id,
@@ -22,6 +23,7 @@ class User {
     required this.age,
     required this.career,
     required this.about_me,
+    required this.total_likes_count,
   });
 
   Map<String, dynamic> toJson() {
@@ -34,6 +36,7 @@ class User {
       'age': age,
       'career': career,
       'about_me': about_me,
+      'total_likes_count': total_likes_count,
     };
   }
 
@@ -41,12 +44,41 @@ class User {
     return User(
       id: json['id'],
       name: json['name'],
-      image: json['imageUrl'] ?? '',
+      image: json['image'],
       gender: json['gender'],
       phone: json['phone'],
       age: json['age'] ?? 18,
       career: json['career'] ?? '',
       about_me: json['about_me'] ?? '',
+      total_likes_count: json['total_likes_count'] ?? 0,
+    );
+  }
+}
+
+class UserImage {
+  final int id;
+  final int user_id;
+  final String image;
+
+  UserImage({
+    required this.id,
+    required this.user_id,
+    required this.image,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user': user_id,
+      'image': image,
+    };
+  }
+
+  factory UserImage.fromJson(Map<String, dynamic> json) {
+    return UserImage(
+      id: json['id'],
+      user_id: json['user'],
+      image: json['image'] ?? '',
     );
   }
 }

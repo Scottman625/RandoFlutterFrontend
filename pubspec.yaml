@@ -46,6 +46,14 @@ dependencies:
   path_provider: ^2.0.15
   rxdart: ^0.27.7
   http_parser: ^4.0.2
+  dotted_border: ^2.0.0+3
+  image_cropper: ^5.0.0
+  flutter_image_compress: ^2.0.3
+  cached_network_image: ^3.2.3
+  sqflite_common_ffi: ^2.2.5
+  amplify_flutter: ^1.2.1
+  amplify_auth_cognito: ^1.2.1
+  amplify_storage_s3: ^1.2.1
 
 dev_dependencies:
   flutter_test:

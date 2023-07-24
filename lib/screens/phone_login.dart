@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../screens/profile_swap.dart';
+import 'main_page.dart';
 import 'package:http/http.dart' as http;
+import '../global.dart';
+import '../web_socket.dart';
 import 'dart:convert';
 import '../shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/loginstate_provider.dart';
 import 'dart:async';
 import '../providers/websocket_provider.dart';
+import '../providers/userId_provider.dart';
 
 class PhoneLogIn extends ConsumerStatefulWidget {
   const PhoneLogIn({super.key});
@@ -18,9 +21,17 @@ class PhoneLogIn extends ConsumerStatefulWidget {
 class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
   final _formKey = GlobalKey<FormState>();
 
+  bool _passwordVisible = false;
+
   var _phoneNumber = '';
 
   var _password = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordVisible = false;
+  }
 
   Future<void> logIn() async {
     if (_formKey.currentState!.validate()) {
@@ -47,10 +58,13 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
           int UserId = jsonDecode(response.body)['id'];
           ref.read(authStateProvider.notifier).login();
 
-          ref.watch(webSocketServiceProvider(
-              'ws://127.0.0.1:8000/ws/chatRoomMessages/${UserId}/'));
+          ref.read(userIdProvider.notifier).setUserId(UserId);
+
+          final websocketServiceNotifier =
+              ref.read(webSocketServiceNotifierProvider);
+
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (ctx) => ProfileSwapScreen(
+              builder: (ctx) => MainPageScreen(
                     userId: UserId.toString(),
                   )));
         } else {
@@ -84,7 +98,7 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
             const Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(16.0),
                   child: Text(
                     '手機號碼登入',
                     style: TextStyle(fontSize: 35),
@@ -97,7 +111,8 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(top: 25.0, left: 25, right: 25),
+                      padding:
+                          const EdgeInsets.only(top: 25.0, left: 25, right: 25),
                       child: TextFormField(
                         maxLength: 10,
                         decoration: const InputDecoration(
@@ -122,16 +137,35 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left: 25, right: 25),
+                      padding: const EdgeInsets.only(left: 25, right: 25),
                       child: TextFormField(
                         maxLength: 30,
+                        obscureText:
+                            !_passwordVisible, //This will obscure text dynamically
                         decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.black, width: 2.0)),
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: '請輸入您的密碼'),
+                          enabledBorder: const OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 2.0)),
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: '請輸入您的密碼',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              // Based on passwordVisible state choose the icon
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Theme.of(context).primaryColorDark,
+                            ),
+                            onPressed: () {
+                              // Update the state i.e. toogle the state of passwordVisible variable
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                        ),
+
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return '此欄位不能為空';

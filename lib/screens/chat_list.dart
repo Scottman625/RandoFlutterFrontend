@@ -7,8 +7,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../web_socket.dart';
 import '../providers/websocket_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 Future<List<ChatRoom>> fetchChatRooms() async {
   final token = await getToken();
@@ -19,14 +19,14 @@ Future<List<ChatRoom>> fetchChatRooms() async {
       'Authorization': auth_token,
     },
   );
-
+  print('test');
   if (response.statusCode == 200) {
     // If the server returns a 200 OK response,
     // then parse the JSON.
     String body = utf8.decode(response.bodyBytes);
     // print(body);
     Iterable list = json.decode(body);
-    // print(list);
+    print('list: ${list}');
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,
@@ -121,13 +121,14 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
         // chatroomList: jsonEncode(widget.chatroomList),
         chatroomId: chatroom.id,
         otherSideImageUrl: chatroom.other_side_image_url,
-        currentUserId: chatroom.current_user_id.toString(),
+        currentUserId: widget.userId,
       ),
     ));
   }
 
   @override
   Widget build(BuildContext context) {
+    // print('userId: ${widget.userId}');
     return Expanded(
         child: SingleChildScrollView(
       child: SizedBox(
@@ -242,11 +243,14 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                               0.9, 0),
                                                       child: Center(
                                                         child: ClipOval(
-                                                          child: Image.asset(
-                                                            asyncSnapshot
-                                                                .data![
-                                                                    index - 1]
-                                                                .image,
+                                                          child:
+                                                              CachedNetworkImage(
+                                                            imageUrl:
+                                                                asyncSnapshot
+                                                                    .data![
+                                                                        index -
+                                                                            1]
+                                                                    .image,
                                                             height: 50,
                                                             width: 50,
                                                             fit: BoxFit.cover,
@@ -298,13 +302,13 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   }
 
   Widget streamBuilder() {
-    final webSocketService = ref.read(webSocketServiceProvider(
-        'ws://127.0.0.1:8000/ws/chatRoomMessages/${widget.userId}/'));
-    webSocketService.addData(map);
-    webSocketService.chatRoomsStream.listen((event) {
+    final webSocketServiceNotifier = ref.read(webSocketServiceNotifierProvider);
+
+    webSocketServiceNotifier.addData(map);
+    webSocketServiceNotifier.chatRoomsStream.listen((event) {
       // print(event); //
     });
-    final chatRoomsStream = webSocketService.chatRoomsStream;
+    final chatRoomsStream = webSocketServiceNotifier.chatRoomsStream;
     return StreamBuilder<List<ChatRoom>>(
       stream: chatRoomsStream,
       // initialData: chatRoomList,
@@ -381,8 +385,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                       children: chatRoom!.unread_nums > 0
                                           ? <Widget>[
                                               ClipOval(
-                                                child: Image.asset(
-                                                  chatRoom!
+                                                child: CachedNetworkImage(
+                                                  imageUrl: chatRoom!
                                                       .other_side_image_url,
                                                   height: 55,
                                                   width: 55,
@@ -428,8 +432,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                             ]
                                           : <Widget>[
                                               ClipOval(
-                                                child: Image.asset(
-                                                  chatRoom!
+                                                child: CachedNetworkImage(
+                                                  imageUrl: chatRoom!
                                                       .other_side_image_url,
                                                   height: 55,
                                                   width: 55,

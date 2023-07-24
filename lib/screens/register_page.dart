@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../screens/profile_swap.dart';
+import 'main_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/loginstate_provider.dart';
@@ -62,7 +62,7 @@ class _RegisterState extends ConsumerState<Register> {
           //     .create('ws://127.0.0.1:8000/ws/chatRoomMessages/${UserId}/');
           const chatroomList = '';
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (ctx) => ProfileSwapScreen(
+              builder: (ctx) => MainPageScreen(
                     // chatroomList: chatroomList,
                     userId: UserId.toString(),
                   )));
