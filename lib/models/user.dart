@@ -13,6 +13,7 @@ class User {
   final String career;
   final String about_me;
   int total_likes_count;
+  String other_side_image_url;
 
   User({
     required this.id,
@@ -24,6 +25,7 @@ class User {
     required this.career,
     required this.about_me,
     required this.total_likes_count,
+    required this.other_side_image_url,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,6 +39,7 @@ class User {
       'career': career,
       'about_me': about_me,
       'total_likes_count': total_likes_count,
+      'other_side_image_url': other_side_image_url,
     };
   }
 
@@ -44,13 +47,14 @@ class User {
     return User(
       id: json['id'],
       name: json['name'],
-      image: json['image'],
+      image: json['image'] ?? '',
       gender: json['gender'],
       phone: json['phone'],
       age: json['age'] ?? 18,
       career: json['career'] ?? '',
       about_me: json['about_me'] ?? '',
       total_likes_count: json['total_likes_count'] ?? 0,
+      other_side_image_url: json['other_side_image_url'] ?? '',
     );
   }
 }
@@ -78,7 +82,7 @@ class UserImage {
     return UserImage(
       id: json['id'],
       user_id: json['user'],
-      image: json['image'] ?? '',
+      image: json['imageUrl'] ?? '',
     );
   }
 }

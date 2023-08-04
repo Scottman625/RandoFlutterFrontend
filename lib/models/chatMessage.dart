@@ -41,9 +41,7 @@ class ChatRoom {
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id'],
-      other_side_image_url: json['other_side_user']['imageUrl'] ??
-          json['other_side_image_url'] ??
-          '',
+      other_side_image_url: json['other_side_image_url'] ?? '',
       other_side_name:
           json['other_side_user']['name'] ?? json['other_side_name'],
       last_message: json['last_message'] ?? '',

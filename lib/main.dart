@@ -3,7 +3,6 @@ import './screens/index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-
 import 'package:sqflite/sqflite.dart';
 
 // final container = ProviderContainer();

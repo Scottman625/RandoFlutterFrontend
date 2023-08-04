@@ -195,11 +195,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       },
     );
     if (response.statusCode == 200) {
-      // print(response.body);
-      print('ok');
-    } else {
-      print('data not refresh');
-    }
+    } else {}
   }
 
   Future<void> _loadInitialMessages(webSocketServiceNotifier) async {
@@ -234,7 +230,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   @override
   Widget build(BuildContext context) {
-    print('userId: ${widget.currentUserId}');
     return Scaffold(
       body: Container(
         color: Colors.white,
@@ -254,12 +249,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
                             webSocketServiceNotifier?.disconnectWebSocket();
-                            Navigator.of(context)
-                                .pushReplacement(MaterialPageRoute(
-                                    builder: (ctx) => MainPageScreen(
-                                          // chatroomList: widget.chatroomList,
-                                          userId: widget.currentUserId,
-                                        ))); // 当点击箭头图标时，返回上一页面
+                            Navigator.of(context).pop(
+                                // MaterialPageRoute(
+                                //   builder: (ctx) => MainPageScreen(
+                                //     // chatroomList: widget.chatroomList,
+                                //     userId: widget.currentUserId,
+                                //   ),
+                                // ),
+                                ); // 当点击箭头图标时，返回上一页面
                           },
                         ),
                       )),
@@ -498,8 +495,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                             ),
                             ClipOval(
                               child: CachedNetworkImage(
-                                imageUrl:
-                                    asyncSnapshot.data!.other_side_user.image,
+                                imageUrl: widget.otherSideImageUrl,
                                 height: 35,
                                 width: 35,
                                 fit: BoxFit.cover,
@@ -573,7 +569,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
               ),
             );
           }
-          print('${initialData[index - 1].user_id},${widget.currentUserId}');
+          // print('${initialData[index - 1].user_id},${widget.currentUserId}');
           return Padding(
             padding: initialData[index - 1].showMessageTime
                 ? const EdgeInsets.only(

@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "rando",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authrando0186ec7a",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

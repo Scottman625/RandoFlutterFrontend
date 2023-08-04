@@ -51,8 +51,6 @@ dependencies:
   flutter_image_compress: ^2.0.3
   cached_network_image: ^3.2.3
   sqflite_common_ffi: ^2.2.5
-  amplify_flutter: ^1.2.1
-  amplify_auth_cognito: ^1.2.1
   amplify_storage_s3: ^1.2.1
 
 dev_dependencies:
@@ -65,7 +63,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-  flutter_riverpod: ^2.3.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
