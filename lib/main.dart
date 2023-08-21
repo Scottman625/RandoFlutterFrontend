@@ -6,7 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
 
 // final container = ProviderContainer();
-
+// github push test
 void main() {
   CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
   sqfliteFfiInit(); // 初始化 sqflite_common_ffi
