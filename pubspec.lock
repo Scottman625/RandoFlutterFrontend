@@ -281,10 +281,11 @@ packages:
   flutter_card_swiper:
     dependency: "direct main"
     description:
-      name: flutter_card_swiper
-      sha256: bd4a63d512ce3992b1950f6c46efeff4a0890e117e36c0fa7101b578bd0fdf3a
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "36365b67c1fe919417b32d8abc64dccf48c1f472"
+      resolved-ref: "36365b67c1fe919417b32d8abc64dccf48c1f472"
+      url: "https://github.com/Scottman625/flutter_card_swiper.git"
+    source: git
     version: "6.0.0"
   flutter_image_compress:
     dependency: "direct main"

@@ -36,7 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_fonts: ^4.0.3
   transparent_image: ^2.0.1
-  flutter_card_swiper: ^6.0.0
+  flutter_card_swiper:
+    git:
+      url: https://github.com/Scottman625/flutter_card_swiper.git
+      ref: 36365b67c1fe919417b32d8abc64dccf48c1f472
   flutter_riverpod: ^2.3.6
   http: ^1.1.0
   shared_preferences: ^2.0.6
