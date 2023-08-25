@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/websocket_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 Future<List<ChatRoom>> fetchChatRooms() async {
   final token = await getToken();
@@ -76,8 +77,44 @@ class ChatPageScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
-  List<ChatRoom> chatRoomList = [];
+  // List<ChatRoom> chatRoomList = [];
   String map = "";
+
+  void Unpair(BuildContext context, String other_side_user_phone) async {
+    final token = await getToken();
+    String auth_token = 'token ${token}';
+    final response = await http
+        .delete(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
+      'Authorization': auth_token,
+    }, body: {
+      'other_side_user_phone': other_side_user_phone,
+    });
+    print('test');
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response,
+      // then parse the JSON.
+      // String body = utf8.decode(response.bodyBytes);
+      // print(body);
+      setState(() {
+        print('remove user $other_side_user_phone match');
+      });
+      // Iterable list = json.decode(body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('已與此用戶解除配對'),
+        ),
+      );
+    }
+  }
+
+  void ReportUser(BuildContext context, index) {
+    // Your logic here
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('已檢舉此用戶'),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -88,7 +125,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   void loadChatRooms() async {
     var list = await fetchChatRooms();
     setState(() {
-      chatRoomList = list;
+      // chatRoomList = list;
       map = jsonEncode({
         "type": "chatrooms",
         "chatrooms": list,
@@ -347,7 +384,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
           } else {
             // print(streamSnapshot.data);
             final chatRoom = streamSnapshot.data?[index - 1];
-            // print(chatRoom);
+            print(chatRoom.other_side_user.phone);
             // final newChatroomList =
             //     jsonEncode(streamSnapshot.data.map((e) => e.toJson()).toList());
 
@@ -375,82 +412,113 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                             child: SizedBox(
                               height: 60,
                               width: MediaQuery.of(context).size.width,
-                              child: ListTile(
-                                leading: SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.15,
-                                  child: Stack(
-                                      children: chatRoom!.unread_nums > 0
-                                          ? <Widget>[
-                                              ClipOval(
-                                                child: CachedNetworkImage(
-                                                  imageUrl: chatRoom!
-                                                      .other_side_image_url,
-                                                  height: 55,
-                                                  width: 55,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              Align(
-                                                  alignment: const Alignment(
-                                                      0.95, -1.05),
-                                                  child: Container(
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color:
-                                                                Colors.white),
-                                                  )),
-                                              Align(
-                                                  alignment:
-                                                      const Alignment(0.9, -1),
-                                                  child: Container(
-                                                    width: 17,
-                                                    height: 17,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            color: Colors.red),
-                                                  )),
-                                              Align(
-                                                  alignment:
-                                                      const Alignment(0.75, -1),
-                                                  child: Text(
-                                                    chatRoom.unread_nums
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  )),
-                                            ]
-                                          : <Widget>[
-                                              ClipOval(
-                                                child: CachedNetworkImage(
-                                                  imageUrl: chatRoom!
-                                                      .other_side_image_url,
-                                                  height: 55,
-                                                  width: 55,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ]),
+                              child: Slidable(
+                                // actionPane: SlidableDrawerActionPane(),
+                                // actionExtentRatio: 0.25,
+
+                                endActionPane: ActionPane(
+                                  motion: ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      flex: 3,
+                                      onPressed: (ctx) =>
+                                          ReportUser(ctx, index),
+                                      backgroundColor: Colors.grey,
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.error,
+                                      label: '檢舉',
+                                    ),
+                                    SlidableAction(
+                                      // An action can be bigger than the others.
+
+                                      flex: 4,
+                                      onPressed: (ctx) => Unpair(
+                                          ctx, chatRoom.other_side_user.phone),
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.close,
+                                      label: '解除配對',
+                                    ),
+                                  ],
                                 ),
-                                title: Text(
-                                  chatRoom.other_side_name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20),
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    chatRoom.last_message,
-                                    style: const TextStyle(fontSize: 20),
+                                child: ListTile(
+                                  leading: SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.15,
+                                    child: Stack(
+                                        children: chatRoom!.unread_nums > 0
+                                            ? <Widget>[
+                                                ClipOval(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: chatRoom!
+                                                        .other_side_image_url,
+                                                    height: 55,
+                                                    width: 55,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                Align(
+                                                    alignment: const Alignment(
+                                                        0.95, -1.05),
+                                                    child: Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              color:
+                                                                  Colors.white),
+                                                    )),
+                                                Align(
+                                                    alignment: const Alignment(
+                                                        0.9, -1),
+                                                    child: Container(
+                                                      width: 17,
+                                                      height: 17,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                              color:
+                                                                  Colors.red),
+                                                    )),
+                                                Align(
+                                                    alignment: const Alignment(
+                                                        0.75, -1),
+                                                    child: Text(
+                                                      chatRoom.unread_nums
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )),
+                                              ]
+                                            : <Widget>[
+                                                ClipOval(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: chatRoom!
+                                                        .other_side_image_url,
+                                                    height: 55,
+                                                    width: 55,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ]),
+                                  ),
+                                  title: Text(
+                                    chatRoom.other_side_name,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      chatRoom.last_message,
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
                                   ),
                                 ),
                               ),

@@ -343,6 +343,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.6"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "381cae53eef54802f0615adf78d11b7dbfde205a"
+      resolved-ref: "381cae53eef54802f0615adf78d11b7dbfde205a"
+      url: "https://github.com/Scottman625/flutter_slidable.git"
+    source: git
+    version: "3.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
