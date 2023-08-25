@@ -384,7 +384,6 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
           } else {
             // print(streamSnapshot.data);
             final chatRoom = streamSnapshot.data?[index - 1];
-            print(chatRoom.other_side_user.phone);
             // final newChatroomList =
             //     jsonEncode(streamSnapshot.data.map((e) => e.toJson()).toList());
 

@@ -1,4 +1,5 @@
 import 'package:rando/models/chatMessage.dart';
+import 'package:rando/screens/chat_list.dart';
 import '../shared_preferences/shared_preferences.dart';
 import '../HexColor.dart';
 import '../providers/websocket_provider.dart';
@@ -256,7 +257,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                                 //     userId: widget.currentUserId,
                                 //   ),
                                 // ),
-                                ); // 当点击箭头图标时，返回上一页面
+                                );
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) => MainPageScreen(
+                                userId: widget.currentUserId,
+                              ),
+                            ));
                           },
                         ),
                       )),
