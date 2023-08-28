@@ -27,7 +27,7 @@ Future<List<ChatRoom>> fetchChatRooms() async {
     String body = utf8.decode(response.bodyBytes);
     // print(body);
     Iterable list = json.decode(body);
-    print('list: ${list}');
+    // print('list: ${list}');
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,

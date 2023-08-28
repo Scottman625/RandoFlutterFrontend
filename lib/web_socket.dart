@@ -82,7 +82,6 @@ class WebSocketService {
   }
 
   bool isWebSocketConnected() {
-    print('Yooooooooooo!');
     print(_subject);
     return _subject != null;
   }

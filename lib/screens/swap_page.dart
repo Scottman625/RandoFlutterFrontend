@@ -119,7 +119,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
                   previousIndex,
                   currentIndex,
                   direction,
-                  profiles[currentIndex!].id.toString()),
+                  profiles[currentIndex! - 1].id.toString()),
               onUndo: _onUndo,
               cardBuilder: (
                 context,

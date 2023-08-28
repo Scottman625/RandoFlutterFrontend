@@ -48,7 +48,7 @@ class _ProfileCardState extends State<ProfileCard>
         ),
         Column(
           children: <Widget>[
-            SizedBox(height: 420),
+            SizedBox(height: 415),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -98,7 +98,7 @@ class _ProfileCardState extends State<ProfileCard>
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 25.0, bottom: 10),
+                  padding: const EdgeInsets.only(left: 25.0, bottom: 10.0),
                   child: Container(
                     width: 120,
                     height: 30,
