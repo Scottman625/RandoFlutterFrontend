@@ -22,7 +22,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
 
   Future<User> getUserData() async {
     String token = await getToken();
-    String authToken = 'token ${token}';
+    String authToken = 'Bearer ${token}';
     final response = await http.get(
       Uri.parse('http://127.0.0.1:8000/api/user/get_user/'),
       headers: {

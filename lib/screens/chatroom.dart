@@ -89,7 +89,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   Future<ChatRoom> fetchOtherSideUserData(int chatroomId) async {
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
 
     String url =
         'http://127.0.0.1:8000/api/chatroom/${chatroomId.toString()}/?is_chat=no';
@@ -118,7 +118,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       _formKey.currentState!.save();
     }
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
     if (content != '') {
       try {
         final response = await http.post(
@@ -171,7 +171,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // String token = await getToken();
-      // authToken = 'token ${token}';
+      // authToken = 'Bearer ${token}';
 
       final webSocketServiceNotifier =
           ref.read(webSocketServiceNotifierProvider);
@@ -184,7 +184,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
   void dispose() async {
     super.dispose();
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
 
     WidgetsBinding.instance.removeObserver(this);
     String url =
@@ -201,7 +201,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   Future<void> _loadInitialMessages(webSocketServiceNotifier) async {
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
     // print(authToken);
     String url =
         'http://127.0.0.1:8000/api/messages?chatroom_id=${widget.chatroomId}';

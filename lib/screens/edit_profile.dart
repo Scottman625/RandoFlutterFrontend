@@ -4,7 +4,6 @@ import '../shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'dart:convert';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,7 +32,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<dynamic> getUserData() async {
     final token = await getToken();
-    String auth_token = 'token ${token}';
+    String auth_token = 'Bearer ${token}';
     final response = await http.get(
       Uri.parse('http://127.0.0.1:8000/api/user/me/'),
       headers: {
@@ -78,7 +77,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var croppedImage = File(croppedFile.path); // Change CroppedFile to File
 
         final token = await getToken();
-        String auth_token = 'token ${token}';
+        String auth_token = 'Bearer ${token}';
         final request = http.MultipartRequest(
           'POST',
           Uri.parse('http://127.0.0.1:8000/api/user/upload_user_images'),
@@ -156,7 +155,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             onPressed: () async {
                               final token = await getToken();
-                              String auth_token = 'token ${token}';
+                              String auth_token = 'Bearer ${token}';
                               final response = await http.delete(
                                 Uri.parse(
                                     'http://127.0.0.1:8000/api/user/update_user_images/${userImageId}/'),

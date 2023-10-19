@@ -13,9 +13,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 Future<List<ChatRoom>> fetchChatRooms() async {
   final token = await getToken();
-  String auth_token = 'token ${token}';
+  String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/chatroom/'),
+    Uri.parse('http://127.0.0.1:8000/api/chatroom'),
     headers: {
       'Authorization': auth_token,
     },
@@ -38,9 +38,9 @@ Future<List<ChatRoom>> fetchChatRooms() async {
 
 Future<List<User>> fetchMatches() async {
   final token = await getToken();
-  String auth_token = 'token ${token}';
+  String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/matched_not_chatted/'),
+    Uri.parse('http://127.0.0.1:8000/api/matched_not_chatted'),
     headers: {
       'Authorization': auth_token,
     },
@@ -80,32 +80,167 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   // List<ChatRoom> chatRoomList = [];
   String map = "";
 
-  void Unpair(BuildContext context, String other_side_user_phone) async {
-    final token = await getToken();
-    String auth_token = 'token ${token}';
-    final response = await http
-        .delete(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
-      'Authorization': auth_token,
-    }, body: {
-      'other_side_user_phone': other_side_user_phone,
-    });
-    print('test');
-    if (response.statusCode == 200) {
-      // If the server returns a 200 OK response,
-      // then parse the JSON.
-      // String body = utf8.decode(response.bodyBytes);
-      // print(body);
-      setState(() {
-        print('remove user $other_side_user_phone match');
-      });
-      // Iterable list = json.decode(body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('已與此用戶解除配對'),
-        ),
-      );
-    }
+  Future<void> showModelButtomUnpair(
+      BuildContext context, String other_side_user_phone) {
+    return showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.black12.withOpacity(0),
+        barrierColor: Colors.black38,
+        builder: (BuildContext context) {
+          return Container(
+            height: 250,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 130,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.95,
+                                child: Align(
+                                  alignment: Alignment(0.95, 0),
+                                  child: SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: IconButton(
+                                      icon: Icon(Icons.close),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: const Text(
+                              '你確定要解除與這位會員的配對嗎？解除後無法撤銷此動作。',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, bottom: 8),
+                            child: Container(
+                              height: 40,
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.redAccent,
+                              ),
+                              child: TextButton(
+                                child: const Text(
+                                  '確認解除配對',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () async {
+                                  final token = await getToken();
+                                  String auth_token = 'Bearer ${token}';
+                                  final response = await http.delete(
+                                      Uri.parse(
+                                          'http://127.0.0.1:8000/api/chatroom'),
+                                      headers: {
+                                        'Authorization': auth_token,
+                                      },
+                                      body: {
+                                        'other_side_user_phone':
+                                            other_side_user_phone,
+                                      });
+                                  print('test');
+                                  if (response.statusCode == 200) {
+                                    // If the server returns a 200 OK response,
+                                    // then parse the JSON.
+                                    // String body = utf8.decode(response.bodyBytes);
+                                    // print(body);
+                                    setState(() {
+                                      print(
+                                          'remove user $other_side_user_phone match');
+                                    });
+                                    // Iterable list = json.decode(body);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('已與此用戶解除配對'),
+                                      ),
+                                    );
+                                  }
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: Container(
+                //     width: MediaQuery.of(context).size.width * 0.95,
+                //     decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.circular(20),
+                //       color: Colors.white,
+                //     ),
+                //     height: 60,
+                //     child: TextButton(
+                //       child: const Text(
+                //         '取消',
+                //         style: TextStyle(
+                //             fontSize: 22,
+                //             fontWeight: FontWeight.bold,
+                //             color: Colors.black),
+                //       ),
+                //       onPressed: () => Navigator.pop(context),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          );
+        });
   }
+
+  // void Unpair(BuildContext context, String other_side_user_phone) async {
+  //   final token = await getToken();
+  //   String auth_token = 'Bearer ${token}';
+  //   final response = await http
+  //       .delete(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
+  //     'Authorization': auth_token,
+  //   }, body: {
+  //     'other_side_user_phone': other_side_user_phone,
+  //   });
+  //   print('test');
+  //   if (response.statusCode == 200) {
+  //     // If the server returns a 200 OK response,
+  //     // then parse the JSON.
+  //     // String body = utf8.decode(response.bodyBytes);
+  //     // print(body);
+  //     setState(() {
+  //       print('remove user $other_side_user_phone match');
+  //     });
+  //     // Iterable list = json.decode(body);
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('已與此用戶解除配對'),
+  //       ),
+  //     );
+  //   }
+  // }
 
   void ReportUser(BuildContext context, index) {
     // Your logic here
@@ -136,12 +271,12 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
 
   void navigateToChatroom(String other_side_user_phone) async {
     final token = await getToken();
-    String authToken = 'token ${token}';
+    String authToken = 'Bearer ${token}';
 
     // print(auth_token);
 
     final getChatRoomtokenResponse = await http
-        .post(Uri.parse('http://127.0.0.1:8000/api/chatroom/'), headers: {
+        .post(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
       'Authorization': authToken,
     }, body: {
       'other_side_user_phone': other_side_user_phone,
@@ -282,10 +417,12 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                         child: ClipOval(
                                                           child:
                                                               CachedNetworkImage(
-                                                            imageUrl: asyncSnapshot
-                                                                .data![
-                                                                    index - 1]
-                                                                .other_side_image_url,
+                                                            imageUrl:
+                                                                asyncSnapshot
+                                                                    .data![
+                                                                        index -
+                                                                            1]
+                                                                    .image,
                                                             height: 50,
                                                             width: 50,
                                                             fit: BoxFit.cover,
@@ -431,7 +568,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                       // An action can be bigger than the others.
 
                                       flex: 4,
-                                      onPressed: (ctx) => Unpair(
+                                      onPressed: (ctx) => showModelButtomUnpair(
                                           ctx, chatRoom.other_side_user.phone),
                                       backgroundColor: Colors.red,
                                       foregroundColor: Colors.white,

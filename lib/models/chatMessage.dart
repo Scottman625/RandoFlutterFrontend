@@ -40,20 +40,19 @@ class ChatRoom {
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
-      id: json['id'],
-      other_side_image_url: json['other_side_image_url'] ?? '',
-      other_side_name:
-          json['other_side_user']['name'] ?? json['other_side_name'],
-      last_message: json['last_message'] ?? '',
-      unread_nums: json['unread_nums'] ?? 0,
-      last_message_time: json['last_message_time'] != null
-          ? DateTime.parse(json['last_message_time'])
-          : DateTime.now(),
-      other_side_user: User.fromJson(json['other_side_user']),
-      other_side_age: json['other_side_user']['age'] ?? 18,
-      other_side_career: json['other_side_user']['career'] ?? '',
-      current_user_id: json['current_user_id'].toString(),
-    );
+        id: json['id'],
+        other_side_image_url: json['other_side_image_url'] ?? '',
+        other_side_name:
+            json['other_side_user']['name'] ?? json['other_side_name'],
+        last_message: json['last_message'] ?? '',
+        unread_nums: json['unread_nums'] ?? 0,
+        last_message_time: json['last_message_time'] != null
+            ? DateTime.parse(json['last_message_time'])
+            : DateTime.now(),
+        other_side_user: User.fromJson(json['other_side_user']),
+        other_side_age: json['other_side_user']['age'] ?? 18,
+        other_side_career: json['other_side_user']['career'] ?? '',
+        current_user_id: json['current_user_id'].toString());
   }
 }
 

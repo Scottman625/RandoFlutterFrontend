@@ -37,7 +37,7 @@ class _RegisterState extends ConsumerState<Register> {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
 
-        final url = Uri.parse('http://127.0.0.1:8000/api/user/create/');
+        final url = Uri.parse('http://127.0.0.1:8000/api/user/register/');
         var response = await http.post(url,
             // headers: {
             //   'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ class _RegisterState extends ConsumerState<Register> {
 
           ref.read(authStateProvider.notifier).login();
           // final _channel = WebSocketService()
-          //     .create('ws://127.0.0.1:8000/ws/chatRoomMessages/${UserId}/');
+          //     .create('ws://127.0.0.1:8000/chatRoomMessages/${UserId}/');
           const chatroomList = '';
           Navigator.of(context).push(MaterialPageRoute(
               builder: (ctx) => MainPageScreen(

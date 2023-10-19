@@ -36,7 +36,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
 
   Future<List<User>> fetchUsers() async {
     final token = await getToken();
-    String auth_token = 'token ${token}';
+    String auth_token = 'Bearer ${token}';
     final response = await http.get(
       Uri.parse('http://127.0.0.1:8000/api/user_picked'),
       headers: {
@@ -156,7 +156,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
         print('123');
         try {
           final token = await getToken();
-          String auth_token = 'token ${token}';
+          String auth_token = 'Bearer ${token}';
           final response = await http.post(
               Uri.parse('http://127.0.0.1:8000/api/user_picked'),
               headers: {
@@ -187,7 +187,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
       } else if (direction.name == 'left') {
         try {
           final token = await getToken();
-          String auth_token = 'token ${token}';
+          String auth_token = 'Bearer ${token}';
           final response = await http.post(
               Uri.parse('http://127.0.0.1:8000/api/user_picked'),
               headers: {
