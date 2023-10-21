@@ -163,13 +163,13 @@ class _SwapPageScreenState extends State<SwapPageScreen>
                 'Authorization': auth_token,
               },
               body: {
-                'liked_user_id': profileId,
-                'is_like': 'True',
+                'likedUserId': profileId,
+                'isLike': 'True',
               });
           if (response.statusCode == 200) {
             print('456');
             String body = utf8.decode(response.bodyBytes);
-            String result = json.decode(body)['result'];
+            String result = json.decode(body)['message'];
             setState(() {
               // Update profiles by removing the swiped profile
               // profiles.removeAt(currentIndex);
@@ -194,12 +194,12 @@ class _SwapPageScreenState extends State<SwapPageScreen>
                 'Authorization': auth_token,
               },
               body: {
-                'liked_user_id': profileId,
-                'is_like': 'False',
+                'likedUserId': profileId,
+                'isLike': 'False',
               });
           if (response.statusCode == 200) {
             String body = utf8.decode(response.bodyBytes);
-            String result = json.decode(body)['result'];
+            String result = json.decode(body)['message'];
             setState(() {
               // Update profiles by removing the swiped profile
               // profiles.removeAt(currentIndex);
