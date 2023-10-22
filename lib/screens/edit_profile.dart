@@ -81,7 +81,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         String auth_token = 'token ${token}';
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('http://127.0.0.1:8000/api/user/upload_user_images'),
+          Uri.parse('http://127.0.0.1:8000/api/user/update_user_images'),
         );
 
         request.headers.addAll({

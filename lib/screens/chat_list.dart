@@ -282,10 +282,12 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                         child: ClipOval(
                                                           child:
                                                               CachedNetworkImage(
-                                                            imageUrl: asyncSnapshot
-                                                                .data![
-                                                                    index - 1]
-                                                                .other_side_image_url,
+                                                            imageUrl:
+                                                                asyncSnapshot
+                                                                    .data![
+                                                                        index -
+                                                                            1]
+                                                                    .image,
                                                             height: 50,
                                                             width: 50,
                                                             fit: BoxFit.cover,
