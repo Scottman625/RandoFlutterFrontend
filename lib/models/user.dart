@@ -11,9 +11,9 @@ class User {
   final String phone;
   final int age;
   final String career;
-  final String about_me;
-  int total_likes_count;
-  String other_side_image_url;
+  final String aboutMe;
+  int totalLikesCount;
+  String otherSideImageUrl;
 
   User({
     required this.id,
@@ -23,9 +23,9 @@ class User {
     required this.phone,
     required this.age,
     required this.career,
-    required this.about_me,
-    required this.total_likes_count,
-    required this.other_side_image_url,
+    required this.aboutMe,
+    required this.totalLikesCount,
+    required this.otherSideImageUrl,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,52 +37,52 @@ class User {
       'phone': phone,
       'age': age,
       'career': career,
-      'about_me': about_me,
-      'total_likes_count': total_likes_count,
-      'other_side_image_url': other_side_image_url,
+      'aboutMe': aboutMe,
+      'totalLikesCount': totalLikesCount,
+      'otherSideImageUrl': otherSideImageUrl,
     };
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
-      name: json['name'],
+      name: json['name'] ?? json['username'],
       image: json['image'] ?? '',
       gender: json['gender'],
       phone: json['phone'],
       age: json['age'] ?? 18,
       career: json['career'] ?? '',
-      about_me: json['about_me'] ?? '',
-      total_likes_count: json['total_likes_count'] ?? 0,
-      other_side_image_url: json['other_side_image_url'] ?? '',
+      aboutMe: json['aboutMe'] ?? '',
+      totalLikesCount: json['totalLikesCount'] ?? 0,
+      otherSideImageUrl: json['otherSideImageUrl'] ?? '',
     );
   }
 }
 
 class UserImage {
   final int id;
-  final int user_id;
+  final int userId;
   final String image;
 
   UserImage({
     required this.id,
-    required this.user_id,
+    required this.userId,
     required this.image,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'user': user_id,
+      'user': userId,
       'image': image,
     };
   }
 
   factory UserImage.fromJson(Map<String, dynamic> json) {
     return UserImage(
-      id: json['id'],
-      user_id: json['user'],
-      image: json['imageUrl'] ?? '',
+      id: json['userImage']['id'],
+      userId: json['userImage']['user']['id'],
+      image: json['userImage']['imageUrl'] ?? json['userImage']['image'],
     );
   }
 }

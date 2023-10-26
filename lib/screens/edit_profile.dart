@@ -26,7 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  var _about_me = '';
+  var _aboutMe = '';
 
   var _interest = '';
 
@@ -80,7 +80,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         String auth_token = 'Bearer ${token}';
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse('http://127.0.0.1:8000/api/user/upload_user_images'),
+          Uri.parse('http://127.0.0.1:8000/api/user/update_user_images'),
         );
 
         request.headers.addAll({
@@ -334,7 +334,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 height: 20,
                                 width: 60,
                                 decoration: BoxDecoration(
-                                    color: widget.user.gender == 'M'
+                                    color: widget.user.gender == 'MALE'
                                         ? Colors.blueAccent
                                         : Colors.pinkAccent,
                                     borderRadius: BorderRadius.circular(30)),
@@ -344,7 +344,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          widget.user.gender == 'M'
+                                          widget.user.gender == 'MALE'
                                               ? Icons.male
                                               : Icons.female,
                                           size: 18,
@@ -419,13 +419,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: Material(
                           color: Colors.white,
                           child: TextFormField(
-                            initialValue: widget.user.about_me,
+                            initialValue: widget.user.aboutMe,
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               fillColor: Colors.white,
                             ),
                             onSaved: (value) {
-                              _about_me = value!;
+                              _aboutMe = value!;
                             },
                           ),
                         ),

@@ -189,7 +189,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
                                   Expanded(
                                     child: Center(
                                       child: Text(
-                                        user.total_likes_count.toString(),
+                                        user.totalLikesCount.toString(),
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 24,

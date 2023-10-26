@@ -27,7 +27,7 @@ Future<List<ChatRoom>> fetchChatRooms() async {
     String body = utf8.decode(response.bodyBytes);
     // print(body);
     Iterable list = json.decode(body);
-    // print('list: ${list}');
+    print('list: ${list}');
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,
@@ -81,7 +81,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   String map = "";
 
   Future<void> showModelButtomUnpair(
-      BuildContext context, String other_side_user_phone) {
+      BuildContext context, String otherSideUser_phone) {
     return showModalBottomSheet<void>(
         context: context,
         backgroundColor: Colors.black12.withOpacity(0),
@@ -158,8 +158,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                         'Authorization': auth_token,
                                       },
                                       body: {
-                                        'other_side_user_phone':
-                                            other_side_user_phone,
+                                        'otherSideUser_phone':
+                                            otherSideUser_phone,
                                       });
                                   print('test');
                                   if (response.statusCode == 200) {
@@ -169,7 +169,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                     // print(body);
                                     setState(() {
                                       print(
-                                          'remove user $other_side_user_phone match');
+                                          'remove user $otherSideUser_phone match');
                                     });
                                     // Iterable list = json.decode(body);
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -215,14 +215,14 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
         });
   }
 
-  // void Unpair(BuildContext context, String other_side_user_phone) async {
+  // void Unpair(BuildContext context, String otherSideUser_phone) async {
   //   final token = await getToken();
   //   String auth_token = 'Bearer ${token}';
   //   final response = await http
   //       .delete(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
   //     'Authorization': auth_token,
   //   }, body: {
-  //     'other_side_user_phone': other_side_user_phone,
+  //     'otherSideUser_phone': otherSideUser_phone,
   //   });
   //   print('test');
   //   if (response.statusCode == 200) {
@@ -231,7 +231,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   //     // String body = utf8.decode(response.bodyBytes);
   //     // print(body);
   //     setState(() {
-  //       print('remove user $other_side_user_phone match');
+  //       print('remove user $otherSideUser_phone match');
   //     });
   //     // Iterable list = json.decode(body);
   //     ScaffoldMessenger.of(context).showSnackBar(
@@ -262,14 +262,13 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
     setState(() {
       // chatRoomList = list;
       map = jsonEncode({
-        "type": "chatrooms",
         "chatrooms": list,
         "messages": [],
       });
     });
   }
 
-  void navigateToChatroom(String other_side_user_phone) async {
+  void navigateToChatroom(String otherSideUser_phone) async {
     final token = await getToken();
     String authToken = 'Bearer ${token}';
 
@@ -279,7 +278,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
         .post(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
       'Authorization': authToken,
     }, body: {
-      'other_side_user_phone': other_side_user_phone,
+      'otherSideUserPhone': otherSideUser_phone,
     });
     String body = utf8.decode(getChatRoomtokenResponse.bodyBytes);
     Map<String, dynamic> chatroomMap = json.decode(body);
@@ -287,12 +286,18 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
 
     // ChatRoom chatroom =
     //     chatroomMap.map((match) => User.fromJson(match)).first();
+    int chatroomId = chatroom.id;
+    String chatRoomImageUrl = chatroom.otherSideImageUrl;
+    String userid = widget.userId;
+    print('chatroomId: $chatroomId');
+    print('chatRoomImageUrl: $chatRoomImageUrl');
+    print('userid: $userid');
 
     Navigator.of(context).push(MaterialPageRoute(
       builder: (ctx) => ChatRoomScreen(
         // chatroomList: jsonEncode(widget.chatroomList),
         chatroomId: chatroom.id,
-        otherSideImageUrl: chatroom.other_side_image_url,
+        otherSideImageUrl: chatroom.otherSideImageUrl,
         currentUserId: widget.userId,
       ),
     ));
@@ -521,8 +526,12 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
           } else {
             // print(streamSnapshot.data);
             final chatRoom = streamSnapshot.data?[index - 1];
-            // final newChatroomList =
-            //     jsonEncode(streamSnapshot.data.map((e) => e.toJson()).toList());
+            int chatroomId = chatRoom.id;
+            String chatRoomImageUrl = chatRoom.otherSideImageUrl;
+            String userid = widget.userId;
+            // print('chatroomId: $chatroomId');
+            // print('chatRoomImageUrl: $chatRoomImageUrl');
+            // print('userid: $userid');
 
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.1,
@@ -536,9 +545,8 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                             builder: (ctx) => ChatRoomScreen(
                               // chatroomList: newChatroomList,
                               chatroomId: chatRoom.id,
-                              otherSideImageUrl: chatRoom.other_side_image_url,
-                              currentUserId:
-                                  chatRoom.current_user_id.toString(),
+                              otherSideImageUrl: chatRoom.otherSideImageUrl,
+                              currentUserId: chatRoom.currentUserId.toString(),
                             ),
                           ));
                         },
@@ -569,7 +577,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
 
                                       flex: 4,
                                       onPressed: (ctx) => showModelButtomUnpair(
-                                          ctx, chatRoom.other_side_user.phone),
+                                          ctx, chatRoom.otherSideUser.phone),
                                       backgroundColor: Colors.red,
                                       foregroundColor: Colors.white,
                                       icon: Icons.close,
@@ -582,12 +590,12 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                     width: MediaQuery.of(context).size.width *
                                         0.15,
                                     child: Stack(
-                                        children: chatRoom!.unread_nums > 0
+                                        children: chatRoom!.unreadNums > 0
                                             ? <Widget>[
                                                 ClipOval(
                                                   child: CachedNetworkImage(
                                                     imageUrl: chatRoom!
-                                                        .other_side_image_url,
+                                                        .otherSideImageUrl,
                                                     height: 55,
                                                     width: 55,
                                                     fit: BoxFit.cover,
@@ -623,7 +631,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                     alignment: const Alignment(
                                                         0.75, -1),
                                                     child: Text(
-                                                      chatRoom.unread_nums
+                                                      chatRoom.unreadNums
                                                           .toString(),
                                                       style: const TextStyle(
                                                           color: Colors.white,
@@ -635,7 +643,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                                 ClipOval(
                                                   child: CachedNetworkImage(
                                                     imageUrl: chatRoom!
-                                                        .other_side_image_url,
+                                                        .otherSideImageUrl,
                                                     height: 55,
                                                     width: 55,
                                                     fit: BoxFit.cover,
@@ -644,7 +652,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                               ]),
                                   ),
                                   title: Text(
-                                    chatRoom.other_side_name,
+                                    chatRoom.otherSideName,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 20),
@@ -652,7 +660,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                   subtitle: Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
-                                      chatRoom.last_message,
+                                      chatRoom.lastMessage,
                                       style: const TextStyle(fontSize: 20),
                                     ),
                                   ),

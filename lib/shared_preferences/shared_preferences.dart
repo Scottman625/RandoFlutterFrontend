@@ -83,34 +83,3 @@ void fetchChatRoomsList() async {
     throw <ChatRoom>[];
   }
 }
-
-// void fetchChatRoomsData(userId) async {
-//   SharedPreferences prefs = await SharedPreferences.getInstance();
-//   print('fetchChatRoomData: ${userId}');
-//   final _channel = WebSocketService()
-//       .create('ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/');
-
-//   final newChatRooms = await fetchChatRooms();
-//   final chatRoomJsonList =
-//       jsonEncode(newChatRooms.map((e) => e.toJson()).toList());
-//   print('chattype: ${jsonDecode(chatRoomJsonList).runtimeType}');
-//   await prefs.setString('chatroom_list', chatRoomJsonList);
-
-//   // await for (var _ in WebSocketService().stream) {
-//   //   // Get the new list of chat rooms.
-//   //   await prefs.setString('chatroom_list',
-//   //       jsonEncode(newChatRooms.map((e) => e.toJson()).toList()));
-//   // }
-//   // return _channel;
-// }
-
-// Future<String> getChatRoomList() async {
-//   SharedPreferences prefs = await SharedPreferences.getInstance();
-//   String chatroom_list_str = prefs.getString('chatroom_list') ?? '';
-//   print('chatroom_list_str: ${chatroom_list_str}');
-//   if (chatroom_list_str == '') {
-//     debugPrint('chatroom_list_str is empty');
-//   }
-//   // print(token);
-//   return chatroom_list_str;
-// }
