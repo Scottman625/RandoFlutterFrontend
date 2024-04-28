@@ -33,7 +33,7 @@ Future<List<User>> fetchMatches() async {
   final token = await getToken();
   String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/matched_not_chatted'),
+    Uri.parse('https://randojavabackend.zeabur.app/api/matched_not_chatted'),
     headers: {
       'Authorization': auth_token,
     },
@@ -61,7 +61,7 @@ void fetchChatRoomsList() async {
 
   String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/chatroom'),
+    Uri.parse('https://randojavabackend.zeabur.app/api/chatroom'),
     headers: {
       'Authorization': auth_token,
     },

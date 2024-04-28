@@ -21,7 +21,7 @@ import '../providers/userId_provider.dart';
 //   final userId = ref.watch(userIdProvider);
 //   print('userID: $userId');
 //   return WebSocketServiceNotifier(
-//       'ws://127.0.0.1:8000/ws/chatRoomMessages/$userId');
+//       'ws://randojavabackend.zeabur.app/ws/chatRoomMessages/$userId');
 // });
 
 class WebSocketServiceNotifier extends StateNotifier<WebSocketService> {
@@ -52,5 +52,5 @@ final webSocketServiceNotifierProvider =
   final userId = ref.watch(userIdProvider);
   print('userID: $userId');
   return WebSocketServiceNotifier(
-      'ws://127.0.0.1:8000/ws/chatRoomMessages/$userId');
+      'ws://randojavabackend.zeabur.app/ws/chatRoomMessages/$userId');
 });

@@ -16,7 +16,8 @@ class WebSocketService {
   BehaviorSubject<dynamic> _subject = BehaviorSubject<dynamic>();
 
   WebSocketService(String url) {
-    String userId = url.split("ws://127.0.0.1:8000/ws/chatRoomMessages/")[1];
+    String userId =
+        url.split("ws://randojavabackend.zeabur.app/ws/chatRoomMessages/")[1];
     stompClient = StompClient(
       config: StompConfig(
         url: url,

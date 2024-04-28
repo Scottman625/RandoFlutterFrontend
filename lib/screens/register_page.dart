@@ -19,7 +19,7 @@ class _RegisterState extends ConsumerState<Register> {
   final _formKey = GlobalKey<FormState>();
 
   var _phoneNumber = '';
-
+  var _userName = '';
   var _password = '';
 
   final TextEditingController passwordController = TextEditingController();
@@ -37,29 +37,36 @@ class _RegisterState extends ConsumerState<Register> {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
 
-        final url = Uri.parse('http://127.0.0.1:8000/api/user/register/');
+        final url =
+            Uri.parse('https://randojavabackend.zeabur.app/api/user/register/');
         var response = await http.post(url,
             // headers: {
             //   'Content-Type': 'application/json',
             // },
             body: {
               'phone': _phoneNumber,
+              'username': _userName,
               'password': _password,
             });
-
-        final token = jsonDecode(response.body)['token'];
+        print(jsonDecode(response.body));
+        final token = jsonDecode(response.body)['data']['token'];
+        print('token : ${token}');
         if (token != null) {
           saveToken(token);
-          String auth_token = 'token $token';
-          final response = await http
-              .get(Uri.parse('http://127.0.0.1:8000/api/user/me/'), headers: {
-            'Authorization': auth_token,
-          });
-          String UserId = jsonDecode(response.body)['id'];
+          String auth_token = 'Bearer $token';
+          print(auth_token);
+          final response = await http.get(
+              Uri.parse(
+                  'https://randojavabackend.zeabur.app/api/user/get_user_id/'),
+              headers: {
+                'Authorization': auth_token,
+              });
+          print(response.statusCode);
+          String UserId = jsonDecode(response.body)['data']['userId'];
 
           ref.read(authStateProvider.notifier).login();
           // final _channel = WebSocketService()
-          //     .create('ws://127.0.0.1:8000/chatRoomMessages/${UserId}/');
+          //     .create('ws://randojavabackend.zeabur.app/chatRoomMessages/${UserId}/');
           const chatroomList = '';
           Navigator.of(context).push(MaterialPageRoute(
               builder: (ctx) => MainPageScreen(
@@ -67,17 +74,33 @@ class _RegisterState extends ConsumerState<Register> {
                     userId: UserId.toString(),
                   )));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Center(
-                child: Text(
-                  '電話號碼或密碼不正確!',
-                  style: TextStyle(fontSize: 20),
+          String responseMessage = jsonDecode(response.body)['message'];
+          if (responseMessage
+              .contains('This phone number is already been used.')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Center(
+                  child: Text(
+                    '此電話號碼已有其他用戶使用!',
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
+                backgroundColor: Colors.red,
               ),
-              backgroundColor: Colors.red,
-            ),
-          );
+            );
+          } else if (responseMessage.contains('register failed')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Center(
+                  child: Text(
+                    '註冊失敗，請稍候重試一次!',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       }
     }
@@ -126,6 +149,32 @@ class _RegisterState extends ConsumerState<Register> {
                       },
                       onSaved: (value) {
                         _phoneNumber = value!;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 25.0, left: 25, right: 25),
+                    child: TextFormField(
+                      maxLength: 20,
+                      decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 2.0)),
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: '請輸入您的暱稱'),
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().length <= 1 ||
+                            value.trim().length > 50) {
+                          return 'Must be between 1 and 50 characters.';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _userName = value!;
                       },
                     ),
                   ),

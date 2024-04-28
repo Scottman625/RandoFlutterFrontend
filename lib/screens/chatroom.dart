@@ -94,8 +94,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     print("接收對象數據");
 
     String url =
-        'http://127.0.0.1:8000/api/chatroom/${chatroomId.toString()}/?is_chat=no';
-    // 'http://127.0.0.1:8000/api/chatroom/${chatroomId.toString()}';
+        'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}/?is_chat=no';
+    // 'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}';
 
     final response = await http.get(
       Uri.parse(url),
@@ -125,7 +125,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       try {
         final response = await http.post(
             Uri.parse(
-                'http://127.0.0.1:8000/api/messages?chatroomId=${chatroomId.toString()}'),
+                'https://randojavabackend.zeabur.app/api/messages?chatroomId=${chatroomId.toString()}'),
             headers: {
               'Authorization': authToken,
             },
@@ -143,7 +143,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(
-            'http://127.0.0.1:8000/api/messages?chatroom_id=${chatroomId.toString()}'),
+            'https://randojavabackend.zeabur.app/api/messages?chatroom_id=${chatroomId.toString()}'),
       );
 
       request.headers.addAll({
@@ -191,7 +191,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     WidgetsBinding.instance.removeObserver(this);
     webSocketServiceNotifier?.disconnectWebSocket();
     String url =
-        'http://127.0.0.1:8000/api/refresh_chatMessages?chatroom_id=${widget.chatroomId}';
+        'https://randojavabackend.zeabur.app/api/refresh_chatMessages?chatroom_id=${widget.chatroomId}';
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -208,7 +208,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     print('初始化Messages數據');
     // ChatRoom chatroom = await fetchOtherSideUserData(widget.chatroomId);
     String url =
-        'http://127.0.0.1:8000/api/messages?chatroom_id=${widget.chatroomId}';
+        'https://randojavabackend.zeabur.app/api/messages?chatroom_id=${widget.chatroomId}';
     final response = await http.get(
       Uri.parse(url),
       headers: {

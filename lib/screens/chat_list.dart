@@ -15,7 +15,7 @@ Future<List<ChatRoom>> fetchChatRooms() async {
   final token = await getToken();
   String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/chatroom'),
+    Uri.parse('https://randojavabackend.zeabur.app/api/chatroom'),
     headers: {
       'Authorization': auth_token,
     },
@@ -40,7 +40,7 @@ Future<List<User>> fetchMatches() async {
   final token = await getToken();
   String auth_token = 'Bearer ${token}';
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/matched_not_chatted'),
+    Uri.parse('https://randojavabackend.zeabur.app/api/matched_not_chatted'),
     headers: {
       'Authorization': auth_token,
     },
@@ -153,7 +153,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
                                   String auth_token = 'Bearer ${token}';
                                   final response = await http.delete(
                                       Uri.parse(
-                                          'http://127.0.0.1:8000/api/chatroom'),
+                                          'https://randojavabackend.zeabur.app/api/chatroom'),
                                       headers: {
                                         'Authorization': auth_token,
                                       },
@@ -219,7 +219,7 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   //   final token = await getToken();
   //   String auth_token = 'Bearer ${token}';
   //   final response = await http
-  //       .delete(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
+  //       .delete(Uri.parse('https://randojavabackend.zeabur.app/api/chatroom'), headers: {
   //     'Authorization': auth_token,
   //   }, body: {
   //     'otherSideUser_phone': otherSideUser_phone,
@@ -274,12 +274,14 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
 
     // print(auth_token);
 
-    final getChatRoomtokenResponse = await http
-        .post(Uri.parse('http://127.0.0.1:8000/api/chatroom'), headers: {
-      'Authorization': authToken,
-    }, body: {
-      'otherSideUserPhone': otherSideUser_phone,
-    });
+    final getChatRoomtokenResponse = await http.post(
+        Uri.parse('https://randojavabackend.zeabur.app/api/chatroom'),
+        headers: {
+          'Authorization': authToken,
+        },
+        body: {
+          'otherSideUserPhone': otherSideUser_phone,
+        });
     String body = utf8.decode(getChatRoomtokenResponse.bodyBytes);
     Map<String, dynamic> chatroomMap = json.decode(body);
     ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);

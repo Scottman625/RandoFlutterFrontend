@@ -38,7 +38,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
     final token = await getToken();
     String auth_token = 'Bearer ${token}';
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+      Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
       headers: {
         'Authorization': auth_token,
       },
@@ -158,7 +158,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
           final token = await getToken();
           String auth_token = 'Bearer ${token}';
           final response = await http.post(
-              Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+              Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
               headers: {
                 'Authorization': auth_token,
               },
@@ -189,7 +189,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
           final token = await getToken();
           String auth_token = 'Bearer ${token}';
           final response = await http.post(
-              Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+              Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
               headers: {
                 'Authorization': auth_token,
               },
