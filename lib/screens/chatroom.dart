@@ -59,14 +59,14 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   String _mapString = "";
 
-  Future<void> createDir() async {
-    Directory docDir = await getApplicationDocumentsDirectory();
-    Directory targetDir = Directory("${docDir.path}/SubmissionLogs/");
+  // Future<void> createDir() async {
+  //   Directory docDir = await getApplicationDocumentsDirectory();
+  //   Directory targetDir = Directory("${docDir.path}/SubmissionLogs/");
 
-    if (!await targetDir.exists()) {
-      await targetDir.create();
-    }
-  }
+  //   if (!await targetDir.exists()) {
+  //     await targetDir.create();
+  //   }
+  // }
 
   Future<void> pickImage() async {
     ImagePicker _picker = ImagePicker();
@@ -89,11 +89,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   Future<ChatRoom> fetchOtherSideUserData(int chatroomId) async {
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
+
+    print("接收對象數據");
 
     String url =
-        'http://127.0.0.1:8000/api/chatroom/${chatroomId.toString()}/?is_chat=no';
-    // 'http://127.0.0.1:8000/api/chatroom/${chatroomId.toString()}';
+        'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}/?is_chat=no';
+    // 'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}';
 
     final response = await http.get(
       Uri.parse(url),
@@ -101,12 +103,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
         'Authorization': authToken,
       },
     );
-
     if (response.statusCode == 200) {
       String body = utf8.decode(response.bodyBytes);
-      Map<String, dynamic> chatroomMap = json.decode(body);
-      ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);
-
+      Iterable chatroomMap = json.decode(body);
+      List<ChatRoom> chatroomList =
+          chatroomMap.map((room) => ChatRoom.fromJson(room)).toList();
+      ChatRoom chatroom = chatroomList.first;
       return chatroom;
     } else {
       throw <ChatMessage>[];
@@ -118,12 +120,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       _formKey.currentState!.save();
     }
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
     if (content != '') {
       try {
         final response = await http.post(
             Uri.parse(
-                'http://127.0.0.1:8000/api/messages?chatroom_id=${chatroomId.toString()}'),
+                'https://randojavabackend.zeabur.app/api/messages?chatroomId=${chatroomId.toString()}'),
             headers: {
               'Authorization': authToken,
             },
@@ -141,7 +143,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(
-            'http://127.0.0.1:8000/api/messages?chatroom_id=${chatroomId.toString()}'),
+            'https://randojavabackend.zeabur.app/api/messages?chatroom_id=${chatroomId.toString()}'),
       );
 
       request.headers.addAll({
@@ -171,7 +173,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // String token = await getToken();
-      // authToken = 'token ${token}';
+      // authToken = 'Bearer ${token}';
 
       final webSocketServiceNotifier =
           ref.read(webSocketServiceNotifierProvider);
@@ -184,11 +186,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
   void dispose() async {
     super.dispose();
     String token = await getToken();
-    final authToken = 'token ${token}';
+    final authToken = 'Bearer ${token}';
 
     WidgetsBinding.instance.removeObserver(this);
+    webSocketServiceNotifier?.disconnectWebSocket();
     String url =
-        'http://127.0.0.1:8000/api/refresh_chatMessages?chatroom_id=${widget.chatroomId}';
+        'https://randojavabackend.zeabur.app/api/refresh_chatMessages?chatroom_id=${widget.chatroomId}';
     final response = await http.post(
       Uri.parse(url),
       headers: {
@@ -201,10 +204,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   Future<void> _loadInitialMessages(webSocketServiceNotifier) async {
     String token = await getToken();
-    final authToken = 'token ${token}';
-    // print(authToken);
+    final authToken = 'Bearer ${token}';
+    print('初始化Messages數據');
+    // ChatRoom chatroom = await fetchOtherSideUserData(widget.chatroomId);
     String url =
-        'http://127.0.0.1:8000/api/messages?chatroom_id=${widget.chatroomId}';
+        'https://randojavabackend.zeabur.app/api/messages?chatroom_id=${widget.chatroomId}';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -214,7 +218,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     String body = utf8.decode(response.bodyBytes);
     final List<dynamic> messageList = jsonDecode(body);
     _mapString = jsonEncode({
-      "type": "chatrooms",
       "chatrooms": [],
       "messages": messageList,
     });
@@ -249,7 +252,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                         child: IconButton(
                           icon: const Icon(Icons.arrow_back),
                           onPressed: () {
-                            webSocketServiceNotifier?.disconnectWebSocket();
+                            // webSocketServiceNotifier?.disconnectWebSocket();
                             Navigator.of(context).pop(
                                 // MaterialPageRoute(
                                 //   builder: (ctx) => MainPageScreen(
@@ -436,15 +439,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
     final chatMessagesStream = webSocketServiceNotifier.chatMessageStream;
 
+    print('接收訊息數據');
+
     return StreamBuilder<List<ChatMessage>>(
         // initialData: _messagesList,
         stream: chatMessagesStream,
         builder: (context, AsyncSnapshot<List<ChatMessage>> snapshot) {
           if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Text('Error123: ${snapshot.error}');
           }
 
-          // 使用 snapshot.hasData 來檢查是否有可用的資料。
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_scrollController.hasClients) {
               _scrollController.jumpTo(
@@ -488,6 +492,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                   }
 
                   // 如果有可用的資料，則顯示聊天訊息列表。
+
                   return Row(
                     children: [
                       Padding(
@@ -538,7 +543,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: Text(
-                                  '${asyncSnapshot.data!.other_side_user.name} ${asyncSnapshot.data!.other_side_user.age}',
+                                  '${asyncSnapshot.data!.otherSideUser.name} ${asyncSnapshot.data!.otherSideAge}',
                                   style: const TextStyle(fontSize: 20),
                                 ),
                               ),
@@ -546,20 +551,20 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: Text(
-                                '3km, 台南 ${asyncSnapshot.data!.other_side_user.career}',
+                                '3km, 台南 ${asyncSnapshot.data!.otherSideUser.career}',
                                 style: const TextStyle(color: Colors.black45),
                               ),
                             ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: Text(
-                                asyncSnapshot.data!.other_side_user.about_me
+                                asyncSnapshot.data!.otherSideUser.aboutMe
                                     .substring(
                                         0,
                                         min(
                                             24,
-                                            asyncSnapshot.data!.other_side_user
-                                                .about_me.length)),
+                                            asyncSnapshot.data!.otherSideUser
+                                                .aboutMe.length)),
                                 style: const TextStyle(fontSize: 16),
                                 // textAlign:
                                 //     TextAlign
@@ -575,7 +580,8 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
               ),
             );
           }
-          // print('${initialData[index - 1].user_id},${widget.currentUserId}');
+          // print('${initialData[index - 1].userId},${widget.currentUserId}');
+          // print(initialData[index - 1].content);
           return Padding(
             padding: initialData[index - 1].showMessageTime
                 ? const EdgeInsets.only(
@@ -591,20 +597,19 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                         alignment: Alignment.bottomCenter,
                         child: Text(
                             intl.DateFormat('yyyy-MM-dd HH:mm')
-                                .format(initialData[index - 1].create_at),
+                                .format(initialData[index - 1].createAt),
                             style: const TextStyle(
                                 fontSize: 14, color: Colors.black54)),
                       ),
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 10),
                         child: Row(
-                          mainAxisAlignment: initialData[index - 1].user_id ==
-                                  widget.currentUserId
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
+                          mainAxisAlignment:
+                              initialData[index - 1].messageIsMine
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
                           children: [
-                            initialData[index - 1].user_id ==
-                                    widget.currentUserId
+                            initialData[index - 1].messageIsMine
                                 ? SizedBox(height: 40, width: 40)
                                 : SizedBox(
                                     child: Padding(
@@ -666,12 +671,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                     )
                   : ListTile(
                       title: Row(
-                        mainAxisAlignment: initialData[index - 1].user_id ==
-                                widget.currentUserId
+                        mainAxisAlignment: initialData[index - 1].messageIsMine
                             ? MainAxisAlignment.end
                             : MainAxisAlignment.start,
                         children: [
-                          initialData[index - 1].user_id == widget.currentUserId
+                          initialData[index - 1].messageIsMine
                               ? SizedBox(height: 40, width: 40)
                               : SizedBox(
                                   child: Padding(

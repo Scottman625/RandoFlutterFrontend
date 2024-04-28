@@ -84,13 +84,10 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
             child: IconButton(
               icon: Icon(Icons.logout),
               onPressed: () {
-                var user_id = userId;
-                removeToken(user_id);
+                removeToken(userId);
                 ref.read(authStateProvider.notifier).logout();
                 ref.read(selectPageProvider.notifier).togglePage(0);
-                // final String url =
-                //     'ws://127.0.0.1:8000/ws/chatRoomMessages/${userId}/';
-                // final webSocketService =GlobalVariables.websocketServiceNotifier?.state;
+
                 final webSocketServiceNotifier =
                     ref.read(webSocketServiceNotifierProvider);
 

@@ -37,7 +37,10 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       try {
-        final url = Uri.parse('http://127.0.0.1:8000/api/user/login/');
+        print(_phoneNumber);
+        print(_password);
+        final url =
+            Uri.parse('https://randojavabackend.zeabur.app/api/user/login/');
         var response = await http.post(url,
             // headers: {
             //   'Content-Type': 'application/json',
@@ -46,15 +49,17 @@ class _PhoneLogInState extends ConsumerState<PhoneLogIn> {
               'username': _phoneNumber,
               'password': _password,
             });
-        // print(response.body);
-        final token = jsonDecode(response.body)['token'];
+        print(response.body);
+        final token = jsonDecode(response.body)['data']['token'];
+        print(token);
         if (token != null) {
           saveToken(token);
-          String auth_token = 'token ${token}';
-          final response = await http
-              .get(Uri.parse('http://127.0.0.1:8000/api/user/me/'), headers: {
-            'Authorization': auth_token,
-          });
+          String auth_token = 'Bearer ${token}';
+          final response = await http.get(
+              Uri.parse('https://randojavabackend.zeabur.app/api/user/me/'),
+              headers: {
+                'Authorization': auth_token,
+              });
           int UserId = jsonDecode(response.body)['id'];
           ref.read(authStateProvider.notifier).login();
 

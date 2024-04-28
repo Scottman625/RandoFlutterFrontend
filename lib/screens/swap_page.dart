@@ -36,9 +36,9 @@ class _SwapPageScreenState extends State<SwapPageScreen>
 
   Future<List<User>> fetchUsers() async {
     final token = await getToken();
-    String auth_token = 'token ${token}';
+    String auth_token = 'Bearer ${token}';
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+      Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
       headers: {
         'Authorization': auth_token,
       },
@@ -119,7 +119,7 @@ class _SwapPageScreenState extends State<SwapPageScreen>
                   previousIndex,
                   currentIndex,
                   direction,
-                  profiles[currentIndex!].id.toString()),
+                  profiles[currentIndex! - 1].id.toString()),
               onUndo: _onUndo,
               cardBuilder: (
                 context,
@@ -156,20 +156,20 @@ class _SwapPageScreenState extends State<SwapPageScreen>
         print('123');
         try {
           final token = await getToken();
-          String auth_token = 'token ${token}';
+          String auth_token = 'Bearer ${token}';
           final response = await http.post(
-              Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+              Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
               headers: {
                 'Authorization': auth_token,
               },
               body: {
-                'liked_user_id': profileId,
-                'is_like': 'True',
+                'likedUserId': profileId,
+                'isLike': 'True',
               });
           if (response.statusCode == 200) {
             print('456');
             String body = utf8.decode(response.bodyBytes);
-            String result = json.decode(body)['result'];
+            String result = json.decode(body)['message'];
             setState(() {
               // Update profiles by removing the swiped profile
               // profiles.removeAt(currentIndex);
@@ -187,19 +187,19 @@ class _SwapPageScreenState extends State<SwapPageScreen>
       } else if (direction.name == 'left') {
         try {
           final token = await getToken();
-          String auth_token = 'token ${token}';
+          String auth_token = 'Bearer ${token}';
           final response = await http.post(
-              Uri.parse('http://127.0.0.1:8000/api/user_picked'),
+              Uri.parse('https://randojavabackend.zeabur.app/api/user_picked'),
               headers: {
                 'Authorization': auth_token,
               },
               body: {
-                'liked_user_id': profileId,
-                'is_like': 'False',
+                'likedUserId': profileId,
+                'isLike': 'False',
               });
           if (response.statusCode == 200) {
             String body = utf8.decode(response.bodyBytes);
-            String result = json.decode(body)['result'];
+            String result = json.decode(body)['message'];
             setState(() {
               // Update profiles by removing the swiped profile
               // profiles.removeAt(currentIndex);

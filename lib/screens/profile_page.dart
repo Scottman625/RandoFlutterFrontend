@@ -22,9 +22,9 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
 
   Future<User> getUserData() async {
     String token = await getToken();
-    String authToken = 'token ${token}';
+    String authToken = 'Bearer ${token}';
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/user/get_user/'),
+      Uri.parse('https://randojavabackend.zeabur.app/api/user/get_user/'),
       headers: {
         'Authorization': authToken,
       },
@@ -189,7 +189,7 @@ class _ProfilePageScreenState extends State<ProfilePageScreen> {
                                   Expanded(
                                     child: Center(
                                       child: Text(
-                                        user.total_likes_count.toString(),
+                                        user.totalLikesCount.toString(),
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 24,
