@@ -55,12 +55,13 @@ dependencies:
   cached_network_image: ^3.2.3
   sqflite_common_ffi: ^2.2.5
   amplify_storage_s3: ^1.2.1
-  flutter_slidable:
-    git:
-      url: https://github.com/Scottman625/flutter_slidable.git
-      ref: 381cae53eef54802f0615adf78d11b7dbfde205a
+  # flutter_slidable:
+  # git:
+  #   url: https://github.com/Scottman625/flutter_slidable.git
+  #   ref: 381cae53eef54802f0615adf78d11b7dbfde205a
   ionicons: ^0.2.2
   stomp_dart_client: ^1.0.0
+  flutter_slidable: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -85,13 +86,13 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/Alice.png
-    - assets/images/Amy.png
-    - assets/images/AU.png
-    - assets/images/CU.png
-    - assets/images/IU.png
-    - assets/images/YU.png
-    - assets/images/Jane.png
+    # - assets/images/Alice.png
+    # - assets/images/Amy.png
+    # - assets/images/AU.png
+    # - assets/images/CU.png
+    # - assets/images/IU.png
+    # - assets/images/YU.png
+    # - assets/images/Jane.png
     - assets/images/logo.png
     - assets/images/logo_unTap.png
     - assets/images/teamlogo.png
@@ -99,9 +100,9 @@ flutter:
     - assets/images/conversation_unTap.png
     - assets/images/person_man_onTap.png
     - assets/images/person_man_unTap.png
-    - assets/images/Scott.png
-    - assets/images/Amanda.png
-    - assets/images/Kinu.png
+    # - assets/images/Scott.png
+    # - assets/images/Amanda.png
+    # - assets/images/Kinu.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
