@@ -27,7 +27,9 @@ Future<List<ChatRoom>> fetchChatRooms() async {
     String body = utf8.decode(response.bodyBytes);
     // print(body);
     Iterable list = json.decode(body);
-    print('list: ${list}');
+    // // 格式化并打印完整的 JSON 列表
+    // String prettyPrintJson = const JsonEncoder.withIndent('  ').convert(list);
+    // printLongString(prettyPrintJson);
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,
@@ -51,7 +53,7 @@ Future<List<User>> fetchMatches() async {
     // then parse the JSON.
     String body = utf8.decode(response.bodyBytes);
     Iterable list = json.decode(body);
-    // print(list);
+
     return list.map((match) => User.fromJson(match)).toList();
   } else {
     // If the server
@@ -684,5 +686,13 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+}
+
+void printLongString(String text) {
+  const int chunkSize = 800;
+  for (int i = 0; i < text.length; i += chunkSize) {
+    print(text.substring(
+        i, i + chunkSize > text.length ? text.length : i + chunkSize));
   }
 }

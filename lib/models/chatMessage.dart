@@ -40,7 +40,7 @@ class ChatRoom {
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
-        id: json['id'] ?? json['chatRoom']['id'],
+        id: json['id'] ?? json['chatroomId'],
         otherSideImageUrl: json['otherSideImageUrl'] != null
             ? json['otherSideImageUrl']
             : json['otherSideImageUrl'],
@@ -52,8 +52,8 @@ class ChatRoom {
         lastMessageTime: json['lastMessageTime'] != null
             ? DateTime.parse(json['lastMessageTime'])
             : DateTime.now(),
-        otherSideUser: json['otherSideUser'] != null
-            ? User.fromJson(json['otherSideUser'])
+        otherSideUser: json['otherSideChatRoomUser'] != null
+            ? User.fromJson(json['otherSideChatRoomUser'])
             : User.fromJson(json['otherSideUser']),
         otherSideAge: json['otherSideAge'] ?? json['otherSideUser']['age'],
         otherSideCareer: json['otherSideUser'] != null

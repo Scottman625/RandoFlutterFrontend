@@ -1,4 +1,6 @@
 {
   "java.configuration.updateBuildConfiguration": "interactive",
-  "cmake.sourceDirectory": "/Users/fangshengjie/Documents/Flutter/Rando/flutter_fronend/linux"
+  "cmake.sourceDirectory": "/Users/fangshengjie/Documents/Flutter/Rando/flutter_fronend/linux",
+  "dart.showTodos": false,
+  "java.compile.nullAnalysis.mode": "disabled"
 }
