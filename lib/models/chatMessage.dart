@@ -1,14 +1,4 @@
-// class ChatroomUserShip {
-//   final ChatRoom chatroom;
-//   final User user;
-
-//   ChatroomUserShip({required this.chatroom, required this.user});
-// }
-
 class ChatMessage {
-  // final String userId;
-  // final String otherSideImageUrl;
-  // final String otherSidePhone;
   String? content; // 这个字段现在是可空的
   final DateTime createAt;
   final bool messageIsMine;

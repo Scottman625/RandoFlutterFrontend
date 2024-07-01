@@ -90,8 +90,6 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     String token = await getToken();
     final authToken = 'Bearer $token';
 
-    print("Fetching other side user data");
-
     String url =
         'https://randojavabackend.zeabur.app/api/chatroom/$chatroomId/?is_chat=no';
 
@@ -657,10 +655,42 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                                               textAlign: TextAlign.center,
                                             )
                                           : initialData[index - 1].image != null
-                                              ?
-                                              // ? Text('test')
-                                              Image.network(
-                                                  '${initialData[index - 1].image}')
+                                              ? Image.network(
+                                                  '${initialData[index - 1].image}',
+                                                  loadingBuilder:
+                                                      (BuildContext context,
+                                                          Widget child,
+                                                          ImageChunkEvent?
+                                                              loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child; // 图像已完成加载时返回的widget
+                                                    } else {
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          value: loadingProgress
+                                                                      .expectedTotalBytes !=
+                                                                  null
+                                                              ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                              : null,
+                                                        ),
+                                                      ); // 图像加载时返回的widget
+                                                    }
+                                                  },
+                                                  errorBuilder: (BuildContext
+                                                          context,
+                                                      Object exception,
+                                                      StackTrace? stackTrace) {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(), // 如果加载失败，也显示加载指示器
+                                                    );
+                                                  },
+                                                )
                                               : Container(),
                                     ),
                                   ],
@@ -712,10 +742,37 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                                     textAlign: TextAlign.center,
                                   )
                                 : initialData[index - 1].image != null
-                                    ?
-                                    // ? Text('test')
-                                    Image.network(
-                                        '${initialData[index - 1].image}')
+                                    ? Image.network(
+                                        '${initialData[index - 1].image}',
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
+                                            ImageChunkEvent? loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child; // 图像已完成加载时返回的widget
+                                          } else {
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            ); // 图像加载时返回的widget
+                                          }
+                                        },
+                                        errorBuilder: (BuildContext context,
+                                            Object exception,
+                                            StackTrace? stackTrace) {
+                                          return Center(
+                                            child:
+                                                CircularProgressIndicator(), // 如果加载失败，也显示加载指示器
+                                          );
+                                        },
+                                      )
                                     : Container(),
                           ),
                         ],
