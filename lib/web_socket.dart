@@ -1,21 +1,26 @@
 import 'package:web_socket_channel/io.dart';
 import 'dart:async';
 import './models/chatMessage.dart';
+import './models/chatRoom.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './screens/chat_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WebSocketService {
+class WebSocketService extends StateNotifier<List<ChatRoom>> {
   // BehaviorSubject<dynamic>? _subject;
   IOWebSocketChannel? _channel;
   // String url = '';
   late StompClient stompClient;
   BehaviorSubject<dynamic> _subject = BehaviorSubject<dynamic>();
 
-  WebSocketService(String url) {
+  WebSocketService(String url) : super([]) {
+    fetchInitialData(url);
     String userId =
         url.split("ws://randojavabackend.zeabur.app/ws/chatRoomMessages/")[1];
     stompClient = StompClient(
@@ -25,9 +30,8 @@ class WebSocketService {
           stompClient.subscribe(
             destination: '/topic/chatRoomMessages_$userId',
             callback: (frame) {
-              Map<String, dynamic>? result = json.decode(frame.body!);
-              print(result);
-              _subject.add(jsonEncode(result));
+              Map<String, dynamic> result = json.decode(frame.body!);
+              _handleNewMessage(result);
             },
           );
 
@@ -53,12 +57,69 @@ class WebSocketService {
     stompClient.activate();
   }
 
+  void _handleNewMessage(Map<String, dynamic> result) {
+    try {
+      if (result.containsKey('chatroom')) {
+        var chatroomMap = result['chatroom'] as Map<String, dynamic>;
+
+        ChatRoom newChatRoom = ChatRoom.fromJson(chatroomMap);
+
+        state.removeWhere((chatRoom) => chatRoom.id == newChatRoom.id);
+        state.insert(0, newChatRoom);
+
+        _subject.add(jsonEncode({'chatroom': state}));
+        _saveChatRoomsToCache(state);
+      }
+      if (result.containsKey('messages')) {
+        List<dynamic> messageList = result['messages'];
+
+        List<ChatMessage> newMessages =
+            messageList.map((e) => ChatMessage.fromJson(e)).toList();
+        printInParts("newMessages: ${newMessages.toString()}", 400);
+        _subject.add(jsonEncode({'messages': newMessages}));
+      } else {
+        print(
+            'The key "chatroom" or "messages" does not exist in the result map.');
+      }
+    } catch (e) {
+      print('Error in _handleNewMessage: $e');
+    }
+  }
+
   BehaviorSubject<dynamic> get subject => _subject;
   Stream<dynamic> get messageStream => _subject.stream;
 
   void close() {
     stompClient.deactivate();
     _subject.close();
+  }
+
+  Future<void> fetchInitialData(String url) async {
+    try {
+      List<ChatRoom> initialData = await fetchChatRooms();
+      state = [...state, ...initialData];
+      _subject.add(jsonEncode({'chatroom': initialData}));
+    } catch (e) {
+      _subject.addError(e);
+    }
+  }
+
+  Future<void> _saveChatRoomsToCache(List<ChatRoom> chatRooms) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> chatRoomsJson =
+        chatRooms.map((chatRoom) => jsonEncode(chatRoom.toJson())).toList();
+    await prefs.setStringList('chatroom_list', chatRoomsJson);
+  }
+
+  Future<List<ChatRoom>> _loadChatRoomsFromCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? chatRoomsJson = prefs.getStringList('chatroom_list');
+    if (chatRoomsJson != null) {
+      return chatRoomsJson
+          .map((chatRoomJson) => ChatRoom.fromJson(jsonDecode(chatRoomJson)))
+          .toList();
+    }
+    return [];
   }
 
   Stream<List<ChatRoom>> get chatRoomsStream {
@@ -68,15 +129,19 @@ class WebSocketService {
           if (jsonString != null && jsonString.isNotEmpty) {
             try {
               var map = jsonDecode(jsonString);
-              if (map['chatrooms'] != null) {
-                List<dynamic> list = map['chatrooms'];
+              // printInParts(map.toString(), 300);
+              List<dynamic> list = map['chatroom'] ?? [];
+              List<ChatRoom> newChatRooms =
+                  list.map((e) => ChatRoom.fromJson(e)).toList();
 
-                List<ChatRoom> chatRooms =
-                    list.map((e) => ChatRoom.fromJson(e)).toList();
-
-                sink.add(chatRooms);
-              }
-            } catch (e) {}
+              state = [...newChatRooms];
+              sink.add(state);
+              _saveChatRoomsToCache(state); // Save updated state to cache
+            } catch (e) {
+              sink.addError(e);
+            }
+          } else {
+            sink.add(state);
           }
         },
       ),
@@ -84,24 +149,17 @@ class WebSocketService {
   }
 
   Stream<List<ChatMessage>> get chatMessageStream {
-    // _subject.stream.listen((data) {
-    //   final filePath =
-    //       '/Users/fangshengjie/Desktop/filename.txt'; // 请替换为实际的文件路径
-
-    //   writeStringToFile('$data', filePath);
-    // });
     return _subject.stream.transform(
       StreamTransformer.fromHandlers(
         handleData: (jsonString, sink) {
-          // print('jsonString: ${jsonString}');
           if (jsonString != null && jsonString.isNotEmpty) {
             try {
               var map = jsonDecode(jsonString);
+              printInParts("chatMessageStream: ${map.toString()}", 400);
               List<dynamic> list = map['messages'] ?? [];
 
               List<ChatMessage> messages =
                   list.map((e) => ChatMessage.fromJson(e)).toList();
-              // print('messages: $messages');
               sink.add(messages);
             } catch (e) {
               print('Failed to decode JSON: $e');
@@ -125,7 +183,7 @@ class WebSocketService {
     return _subject != null;
   }
 
-  Stream<dynamic> get stream => _subject!.stream;
+  // Stream<dynamic> get stream => _subject!.stream;
 }
 
 void printInParts(String text, int partLength) {

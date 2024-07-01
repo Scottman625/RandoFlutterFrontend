@@ -1,70 +1,3 @@
-import 'user.dart';
-
-class ChatRoom {
-  final int id;
-  final String otherSideImageUrl;
-  final String otherSideName;
-  final String lastMessage;
-  int unreadNums;
-  final DateTime lastMessageTime;
-  final User otherSideUser;
-  final int otherSideAge;
-  final String otherSideCareer;
-  String currentUserId;
-
-  ChatRoom({
-    required this.id,
-    required this.otherSideImageUrl,
-    required this.otherSideName,
-    required this.lastMessage,
-    required this.unreadNums,
-    required this.lastMessageTime,
-    required this.otherSideUser,
-    required this.otherSideAge,
-    required this.otherSideCareer,
-    required this.currentUserId,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'otherSideImageUrl': otherSideImageUrl,
-        'otherSideName': otherSideName,
-        'lastMessage': lastMessage,
-        'lastMessageTime': lastMessageTime.toIso8601String(),
-        'unreadNums': unreadNums,
-        'otherSideUser': otherSideUser.toJson(),
-        'otherSideAge': otherSideAge,
-        'otherSideCareer': otherSideCareer,
-        'currentUserId': currentUserId,
-      };
-
-  factory ChatRoom.fromJson(Map<String, dynamic> json) {
-    return ChatRoom(
-        id: json['id'] ?? json['chatRoom']['id'],
-        otherSideImageUrl: json['otherSideImageUrl'] != null
-            ? json['otherSideImageUrl']
-            : json['otherSideImageUrl'],
-        otherSideName: json['otherSideName'] != null
-            ? json['otherSideName']
-            : json['otherSideName'],
-        lastMessage: json['lastMessage'] ?? '',
-        unreadNums: json['unreadNums'] ?? 0,
-        lastMessageTime: json['lastMessageTime'] != null
-            ? DateTime.parse(json['lastMessageTime'])
-            : DateTime.now(),
-        otherSideUser: json['otherSideUser'] != null
-            ? User.fromJson(json['otherSideUser'])
-            : User.fromJson(json['otherSideUser']),
-        otherSideAge: json['otherSideAge'] ?? json['otherSideUser']['age'],
-        otherSideCareer: json['otherSideUser'] != null
-            ? json['otherSideUser']['career']
-            : json['otherSideCareer'],
-        currentUserId: json['currentUser'] != null
-            ? json['currentUser']['id'].toString()
-            : json['currentUserId'].toString());
-  }
-}
-
 // class ChatroomUserShip {
 //   final ChatRoom chatroom;
 //   final User user;
@@ -101,6 +34,7 @@ class ChatMessage {
         'createAt': createAt.toIso8601String(),
         'messageIsMine': messageIsMine,
         'showMessageTime': showMessageTime,
+        'imageUrl': image,
       };
 
 // 從JSON格式轉換為ChatMessage{}

@@ -1,5 +1,7 @@
 import 'package:rando/models/chatMessage.dart';
+import 'package:rando/models/chatRoom.dart';
 import 'package:rando/screens/chat_list.dart';
+import 'package:rando/web_socket.dart';
 import '../shared_preferences/shared_preferences.dart';
 import '../HexColor.dart';
 import '../providers/websocket_provider.dart';
@@ -57,16 +59,13 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   bool _selectImage = false;
 
+  List<ChatMessage> messages = [];
+
   String _mapString = "";
 
-  // Future<void> createDir() async {
-  //   Directory docDir = await getApplicationDocumentsDirectory();
-  //   Directory targetDir = Directory("${docDir.path}/SubmissionLogs/");
+  bool isLoading = true;
 
-  //   if (!await targetDir.exists()) {
-  //     await targetDir.create();
-  //   }
-  // }
+  late Future<ChatRoom> chatRoomFuture;
 
   Future<void> pickImage() async {
     ImagePicker _picker = ImagePicker();
@@ -89,13 +88,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
 
   Future<ChatRoom> fetchOtherSideUserData(int chatroomId) async {
     String token = await getToken();
-    final authToken = 'Bearer ${token}';
+    final authToken = 'Bearer $token';
 
-    print("接收對象數據");
+    print("Fetching other side user data");
 
     String url =
-        'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}/?is_chat=no';
-    // 'https://randojavabackend.zeabur.app/api/chatroom/${chatroomId.toString()}';
+        'https://randojavabackend.zeabur.app/api/chatroom/$chatroomId/?is_chat=no';
 
     final response = await http.get(
       Uri.parse(url),
@@ -105,13 +103,12 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
     );
     if (response.statusCode == 200) {
       String body = utf8.decode(response.bodyBytes);
-      Iterable chatroomMap = json.decode(body);
-      List<ChatRoom> chatroomList =
-          chatroomMap.map((room) => ChatRoom.fromJson(room)).toList();
-      ChatRoom chatroom = chatroomList.first;
+      Map<String, dynamic> chatroomMap = json.decode(body);
+
+      ChatRoom chatroom = ChatRoom.fromJson(chatroomMap);
       return chatroom;
     } else {
-      throw <ChatMessage>[];
+      throw Exception('Failed to load chatroom data');
     }
   }
 
@@ -120,66 +117,75 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
       _formKey.currentState!.save();
     }
     String token = await getToken();
-    final authToken = 'Bearer ${token}';
-    if (content != '') {
-      try {
+    final authToken = 'Bearer $token';
+
+    try {
+      if (content.isNotEmpty) {
         final response = await http.post(
-            Uri.parse(
-                'https://randojavabackend.zeabur.app/api/messages?chatroomId=${chatroomId.toString()}'),
-            headers: {
-              'Authorization': authToken,
-            },
-            body: {
-              'content': content,
-            });
+          Uri.parse(
+              'https://randojavabackend.zeabur.app/api/messages?chatroomId=$chatroomId'),
+          headers: {
+            'Authorization': authToken,
+          },
+          body: {
+            'content': content,
+          },
+        );
+
         if (response.statusCode == 200) {
           String body = utf8.decode(response.bodyBytes);
-          // print(json.decode(body));
+          // print('Message sent: $body');
+        } else {
+          print('Failed to send message. Status code: ${response.statusCode}');
+          print('Response body: ${response.body}');
         }
-      } catch (e) {
-        // print('Caught exception: $e');
+      } else if (_imageFile != null) {
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              'https://randojavabackend.zeabur.app/api/messages?chatroomId=$chatroomId'),
+        );
+
+        request.headers.addAll({
+          'Authorization': authToken,
+        });
+
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            _imageFile!.path,
+            contentType: MediaType('image', 'jpeg'),
+          ),
+        );
+
+        var response = await request.send();
+
+        if (response.statusCode == 200) {
+          print('Image uploaded successfully');
+        } else {
+          print('Failed to upload image. Status code: ${response.statusCode}');
+          print('Response: ${await response.stream.bytesToString()}');
+        }
+
+        _removeImage();
       }
-    } else if (_imageFile != null) {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse(
-            'https://randojavabackend.zeabur.app/api/messages?chatroom_id=${chatroomId.toString()}'),
-      );
-
-      request.headers.addAll({
-        'Authorization': authToken,
-      });
-
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image', // key to reference the file in the request
-          _imageFile!.path,
-          contentType: MediaType(
-              'image', 'jpeg'), // specify the content type of the file
-        ),
-      );
-      _removeImage();
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        print("Uploaded!");
-      }
+    } catch (e) {
+      print('Caught exception: $e');
     }
   }
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // String token = await getToken();
-      // authToken = 'Bearer ${token}';
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final webSocketServiceNotifier =
           ref.read(webSocketServiceNotifierProvider);
 
       _loadInitialMessages(webSocketServiceNotifier);
     });
+
+    // Initialize the future
+    chatRoomFuture = fetchOtherSideUserData(widget.chatroomId);
   }
 
   @override
@@ -435,9 +441,11 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
   }
 
   Widget fetchMessageData() {
-    final webSocketServiceNotifier = ref.read(webSocketServiceNotifierProvider);
+    // final webSocketServiceNotifier = ref.read(webSocketServiceNotifierProvider);
+    final chatMessagesStream =
+        ref.watch(webSocketServiceNotifierProvider.notifier).chatMessageStream;
 
-    final chatMessagesStream = webSocketServiceNotifier.chatMessageStream;
+    // final chatMessagesStream = webSocketServiceNotifier.chatMessageStream;
 
     print('接收訊息數據');
 
@@ -458,7 +466,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
           });
 
           final messages = snapshot.data ?? [];
-          // print('messages: ${messages}');
+
           if (messages.length <= 7) {
             return SingleChildScrollView(child: ListViewBuilder(messages));
           } else {
@@ -483,15 +491,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                     return Text('Errorssss: ${asyncSnapshot.error}');
                   }
 
-                  // 使用 asyncSnapshot.hasData 來檢查是否有可用的資料。
-                  // 如果 asyncSnapshot.data 為 null 或者 asyncSnapshot.data 為空，
-                  // 則顯示 CircularProgressIndicator。
                   if (asyncSnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   }
-
-                  // 如果有可用的資料，則顯示聊天訊息列表。
 
                   return Row(
                     children: [
@@ -543,7 +546,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
                                 child: Text(
-                                  '${asyncSnapshot.data!.otherSideUser.name} ${asyncSnapshot.data!.otherSideAge}',
+                                  '${asyncSnapshot.data!.otherSideName} ${asyncSnapshot.data!.otherSideAge}',
                                   style: const TextStyle(fontSize: 20),
                                 ),
                               ),
@@ -551,20 +554,19 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen>
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: Text(
-                                '3km, 台南 ${asyncSnapshot.data!.otherSideUser.career}',
+                                '3km, 台南 ${asyncSnapshot.data!.otherSideCareer}',
                                 style: const TextStyle(color: Colors.black45),
                               ),
                             ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: Text(
-                                asyncSnapshot.data!.otherSideUser.aboutMe
-                                    .substring(
-                                        0,
-                                        min(
-                                            24,
-                                            asyncSnapshot.data!.otherSideUser
-                                                .aboutMe.length)),
+                                asyncSnapshot.data!.otherSideUserInfo.substring(
+                                    0,
+                                    min(
+                                        24,
+                                        asyncSnapshot
+                                            .data!.otherSideUserInfo.length)),
                                 style: const TextStyle(fontSize: 16),
                                 // textAlign:
                                 //     TextAlign

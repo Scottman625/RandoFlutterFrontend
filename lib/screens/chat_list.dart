@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rando/models/chatMessage.dart';
+import 'package:rando/models/chatRoom.dart';
+import 'package:rando/web_socket.dart';
 import '../shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'chatroom.dart';
@@ -27,7 +28,6 @@ Future<List<ChatRoom>> fetchChatRooms() async {
     String body = utf8.decode(response.bodyBytes);
     // print(body);
     Iterable list = json.decode(body);
-    print('list: ${list}');
     return list.map((match) => ChatRoom.fromJson(match)).toList();
   } else {
     // If the server response is not a 200 OK,
@@ -54,10 +54,6 @@ Future<List<User>> fetchMatches() async {
     // print(list);
     return list.map((match) => User.fromJson(match)).toList();
   } else {
-    // If the server
-    //response is not a 200 OK,
-    // then throw an exception.
-    // print('test');
     throw <User>[];
   }
 }
@@ -254,19 +250,30 @@ class _ChatPageScreenState extends ConsumerState<ChatPageScreen> {
   @override
   void initState() {
     super.initState();
-    loadChatRooms(); // This function fetches data and then sets the state.
-  }
-
-  void loadChatRooms() async {
-    var list = await fetchChatRooms();
-    setState(() {
-      // chatRoomList = list;
-      map = jsonEncode({
-        "chatrooms": list,
-        "messages": [],
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final webSocketServiceNotifier =
+          ref.read(webSocketServiceNotifierProvider);
+      webSocketServiceNotifier.fetchInitialData(
+          'ws://randojavabackend.zeabur.app/ws/chatRoomMessages/${widget.userId}');
     });
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   loadChatRooms(); // This function fetches data and then sets the state.
+  // }
+
+  // void loadChatRooms() async {
+  //   var list = await fetchChatRooms();
+  //   setState(() {
+  //     // chatRoomList = list;
+  //     map = jsonEncode({
+  //       "chatrooms": list,
+  //       "messages": [],
+  //     });
+  //   });
+  // }
 
   void navigateToChatroom(String otherSideUser_phone) async {
     final token = await getToken();

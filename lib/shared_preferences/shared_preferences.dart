@@ -1,12 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../models/user.dart';
-import '../screens/chat_list.dart';
-import '../models/chatMessage.dart';
+import '../models/chatRoom.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import '../web_socket.dart';
 
 void saveToken(String token) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
